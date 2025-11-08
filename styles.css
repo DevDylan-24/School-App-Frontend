@@ -1,0 +1,157 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    letter-spacing: -0.01em;
+}
+
+/* Navbar styles*/
+.navbar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.navbar-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+}
+
+.logo {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logo ion-icon {
+    font-size: 1.8rem;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    flex: 1;
+    align-items: center;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-icon {
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #ffd700;
+    transition: width 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #ffd700;
+    transform: translateY(-2px);
+}
+
+.nav-links a:hover::after {
+    width: 100%;
+}
+
+.nav-links a:active {
+    transform: translateY(0);
+}
+
+/* Search Bar styles */
+.search-bar {
+    display: flex;
+    gap: 0.5rem;
+    position: relative;
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    color: #999;
+    font-size: 1.2rem;
+    pointer-events: none;
+    transition: color 0.3s ease;
+}
+
+.search-input-wrapper:focus-within .search-icon {
+    color: #667eea;
+}
+
+.search-bar input {
+    padding: 0.6rem 1rem 0.6rem 2.8rem;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    width: 300px;
+    transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+.search-bar input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    transform: translateY(-1px);
+    background-color: white;
+}
+
+.search-bar button {
+    padding: 0.6rem 1.2rem;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.search-bar button ion-icon {
+    font-size: 1.1rem;
+}
+
+.search-bar button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+}

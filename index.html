@@ -3,14 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/ionicons/7.1.0/ionicons/ionicons.esm.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script nomodule src="https://cdnjs.cloudflare.com/ajax/libs/ionicons/7.1.0/ionicons/ionicons.js"></script>
     <title>School App</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="app">
-        {{ message }}
-        
-        <button @click="greet">Greet button</button>
+        <nav class="navbar">
+            <div class="navbar-content">
+                <div class="logo">
+                    <ion-icon name="book"></ion-icon>
+                    The Learning Lounge
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#home"><ion-icon name="home" class="nav-icon"></ion-icon>Home</a></li>
+                    <li><a href="#cart"><ion-icon name="cart" class="nav-icon"></ion-icon>My Cart<span class="cart-badge" v-if="cartCount > 0">{{ cartCount }}</span></a></li>
+                    <li><a href="#checkout"><ion-icon name="card" class="nav-icon"></ion-icon>Checkout</a></li>
+                    <li><a href="#profile"><ion-icon name="person" class="nav-icon"></ion-icon>Profile</a></li>
+                    <li><a href="#courses"><ion-icon name="library" class="nav-icon"></ion-icon>My Courses</a></li>
+                </ul>
+                <div class="search-bar">
+                    <div class="search-input-wrapper">
+                        <ion-icon name="search" class="search-icon"></ion-icon>
+                        <input 
+                            type="text" 
+                            placeholder="Search lessons..." 
+                            v-model="searchQuery"
+                            @input="filterLessons"
+                        >
+                    </div>
+                    <button>
+                        <ion-icon name="search-outline"></ion-icon>
+                        Search
+                    </button>
+                </div>
+            </div>
+        </nav>
     </div>
     <script src="app.js"></script>
 </body>
