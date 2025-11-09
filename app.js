@@ -1,7 +1,8 @@
 new Vue({
    el: '#app',
     data: {
-        currentView: 'home',
+        currentView: 'login',
+        isSignUp: false,
         searchQuery: '',
         selectedSubjects: [],
         selectedLocations: [],
@@ -197,6 +198,9 @@ new Vue({
     methods: {
         changeView(view) {
             this.currentView = view;
+        },
+        ToggleSignUp() {
+            this.isSignUp = !this.isSignUp;
         },
         toggleSidebar() {
             this.sidebarCollapsed = !this.sidebarCollapsed;

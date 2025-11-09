@@ -6,13 +6,68 @@
     <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/ionicons/7.1.0/ionicons/ionicons.esm.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script nomodule src="https://cdnjs.cloudflare.com/ajax/libs/ionicons/7.1.0/ionicons/ionicons.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <title>School App</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="login.css">
+
 </head>
 <body>
     <div id="app">
+        <!-- This the the HTML for the login page -->
+        <div v-if="currentView == 'login'">
+            <div class="container" id="container" :class="{ 'active': isSignUp }">
+                <div class="form-container sign-up">
+                    <form>
+                        <h1>Create Account</h1>
+                        <span>Sign up as:</span>
+                        
+                        <!-- From Uiverse.io by chase2k25 --> 
+                        <div class="glass-radio-group">
+                            <input type="radio" name="plan" id="glass-silver" checked="" />
+                            <label for="glass-silver">Student</label>
+
+                            <input type="radio" name="plan" id="glass-gold" />
+                            <label for="glass-gold">Tutor</label>
+
+                            <div class="glass-glider"></div>
+                        </div>
+
+
+                        <input type="text" placeholder="Name">
+                        <input type="email" placeholder="Email">
+                        <input type="password" placeholder="Password">
+                        <button>Sign Up</button>
+                    </form>
+                </div>
+                <div class="form-container sign-in">
+                    <form>
+                        <h1>Sign In</h1>
+                        <input type="email" placeholder="Email">
+                        <input type="password" placeholder="Password">
+                        <a href="#">Forget Your Password?</a>
+                        <button>Sign In</button>
+                    </form>
+                </div>
+                <div class="toggle-container">
+                    <div class="toggle">
+                        <div class="toggle-panel toggle-left">
+                            <h1>Welcome Back!</h1>
+                            <p>We're excited to see what you'll learn today. Log in to access your courses and resources.</p>
+                            <button class="hidden" id="login" @click="ToggleSignUp">Sign In</button>
+                        </div>
+                        <div class="toggle-panel toggle-right">
+                            <h1>Hello, Dear User!</h1>
+                            <p>Register with your personal details and let's kickstart your learning adventure</p>
+                            <button class="hidden" id="register" @click="ToggleSignUp">Sign Up</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- HTML for navbar -->
-        <nav class="navbar">
+        <nav class="navbar" v-if="currentView !== 'login'">
             <div class="navbar-content">
                 <div class="logo">
                     <ion-icon name="book"></ion-icon>
@@ -42,6 +97,7 @@
                 </div>
             </div>
         </nav>
+
 
         <!-- My cart page view -->
         <div v-if="currentView == 'cart'" class="placeholder-view">
