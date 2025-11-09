@@ -3,6 +3,15 @@ new Vue({
     data: {
         currentView: 'login',
         isSignUp: false,
+        errorName: false,
+        errorEmail: false,
+        errorPassword: false,
+        registerName: '',
+        registerEmail: '',
+        registerPassword: '',
+        registerRole: 'student',
+        loginEmail: '',
+        loginPassword: '',
         searchQuery: '',
         selectedSubjects: [],
         selectedLocations: [],
@@ -204,6 +213,32 @@ new Vue({
         },
         toggleSidebar() {
             this.sidebarCollapsed = !this.sidebarCollapsed;
+        },
+        removeColorClass(){
+            document.getElementById('studentLabel').classList.remove('default-checked');
+        },
+        SignUp() {
+            this.errorName = this.registerName.trim() === '';
+            this.errorEmail = !this.registerEmail.includes('@');
+            this.errorPassword = !this.isPasswordValid(this.registerPassword);
+
+            if (this.errorName || this.errorEmail || this.errorPassword) {
+                return;
+            }
+            // Placeholder for sign-up logic
+            alert(`Signing up ${this.registerName} as a ${this.registerRole} with email ${this.registerEmail} and password ${this.registerPassword}`);
+        },
+        Login() {
+            // Placeholder for login logic
+            alert(`Logging in with email ${this.loginEmail} and password ${this.loginPassword}`);
+        },
+        DummyFunction() {
+          return;
+        },
+        isPasswordValid(password) {
+            // Check for at least 8 characters, one uppercase letter, and one number
+            const regex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+            return regex.test(password);
         },
         filterLessons() {
             let filtered = this.lessons;

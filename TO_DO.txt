@@ -1,4 +1,5 @@
-Do login & signup page for both student and tutor
+Do login & signup page for both student and tutor               -> In Progress
+    -Validate user input for login and signup
     -Store current user
 
 Switch pages using navbar links                                 -> Done
@@ -10,3 +11,7 @@ Do checkout page
 Do My Courses page to view registered courses and add reviews 
 Do profile page
 
+
+
+Do Login validation similar to signup
+Fix CSS conflicts between login and main page

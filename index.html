@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <title>School App</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="login.css">
+    <!-- <link rel="stylesheet" href="login.css"> -->
 
 </head>
 <body>
@@ -18,35 +18,46 @@
         <div v-if="currentView == 'login'">
             <div class="container" id="container" :class="{ 'active': isSignUp }">
                 <div class="form-container sign-up">
-                    <form>
+                    <form @submit.prevent="DummyFunction">
                         <h1>Create Account</h1>
                         <span>Sign up as:</span>
                         
-                        <!-- From Uiverse.io by chase2k25 --> 
-                        <div class="glass-radio-group">
-                            <input type="radio" name="plan" id="glass-silver" checked="" />
-                            <label for="glass-silver">Student</label>
 
-                            <input type="radio" name="plan" id="glass-gold" />
-                            <label for="glass-gold">Tutor</label>
+                        <div class="glass-radio-group">
+                            <input type="radio" name="plan" id="glass-silver" value="student" v-model="registerRole" checked=""/>
+                            <label id="studentLabel" for="glass-silver" class="default-checked">Student</label>
+
+                            <input type="radio" name="plan" id="glass-gold" value="tutor" v-model="registerRole" />
+                            <label for="glass-gold" @click="removeColorClass">Tutor</label>
 
                             <div class="glass-glider"></div>
                         </div>
 
 
-                        <input type="text" placeholder="Name">
-                        <input type="email" placeholder="Email">
-                        <input type="password" placeholder="Password">
-                        <button>Sign Up</button>
+                        <input type="text" placeholder="Name" v-model="registerName">
+                        <input type="email" placeholder="Email" v-model="registerEmail">
+                        <input type="password" placeholder="Password" v-model="registerPassword">
+
+                        <div v-if="errorName && errorEmail" class="error-message">Please enter a valid name and email</div>
+                        <div v-else-if="errorEmail" class="error-message">Please enter a valid email</div>
+                        <div v-else-if="errorName" class="error-message">Please enter a valid name</div>
+                        <div v-if="errorPassword" class="error-message" style="text-align: center;">Password must be at least 8 characters, contain at least one capital letter and number</div>
+
+
+                        <button @click="SignUp">Sign Up</button>
                     </form>
                 </div>
                 <div class="form-container sign-in">
-                    <form>
+                    <form @submit.prevent="DummyFunction">
                         <h1>Sign In</h1>
-                        <input type="email" placeholder="Email">
-                        <input type="password" placeholder="Password">
-                        <a href="#">Forget Your Password?</a>
-                        <button>Sign In</button>
+                        <input type="email" placeholder="Email" v-model="loginEmail">
+                        <input type="password" placeholder="Password" v-model="loginPassword">
+
+
+                        <div v-if="errorEmail" class="error-message">Please enter a valid email</div>
+                        <div v-if="errorPassword" class="error-message" style="text-align: center;">Invalid password entered</div>
+
+                        <button @click="Login">Sign In</button>
                     </form>
                 </div>
                 <div class="toggle-container">
