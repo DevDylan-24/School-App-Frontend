@@ -1,7 +1,7 @@
 Do login & signup page for both student and tutor
     -Store current user
 
-Switch pages using navbar links
+Switch pages using navbar links                                 -> Done
 Connect to backend using fetch
 Do cart page
     -Remove item from cart

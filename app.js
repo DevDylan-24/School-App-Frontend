@@ -1,6 +1,7 @@
 new Vue({
    el: '#app',
     data: {
+        currentView: 'home',
         searchQuery: '',
         selectedSubjects: [],
         selectedLocations: [],
@@ -194,6 +195,9 @@ new Vue({
         }
     },
     methods: {
+        changeView(view) {
+            this.currentView = view;
+        },
         toggleSidebar() {
             this.sidebarCollapsed = !this.sidebarCollapsed;
         },

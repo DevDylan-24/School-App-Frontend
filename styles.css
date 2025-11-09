@@ -79,6 +79,7 @@ body {
 .nav-links a:hover {
     color: #ffd700;
     transform: translateY(-2px);
+    cursor: pointer;
 }
 
 .nav-links a:hover::after {

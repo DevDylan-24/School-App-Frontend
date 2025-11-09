@@ -19,13 +19,13 @@
                     The Learning Lounge
                 </div>
                 <ul class="nav-links">
-                    <li><a href="#home"><ion-icon name="home" class="nav-icon"></ion-icon>Home</a></li>
-                    <li><a href="#cart"><ion-icon name="cart" class="nav-icon"></ion-icon>My Cart<span class="cart-badge" v-if="cartCount > 0">{{ cartCount }}</span></a></li>
-                    <li><a href="#checkout"><ion-icon name="card" class="nav-icon"></ion-icon>Checkout</a></li>
-                    <li><a href="#profile"><ion-icon name="person" class="nav-icon"></ion-icon>Profile</a></li>
-                    <li><a href="#courses"><ion-icon name="library" class="nav-icon"></ion-icon>My Courses</a></li>
+                    <li><a @click="changeView('home')"><ion-icon name="home" class="nav-icon"></ion-icon>Home</a></li>
+                    <li><a @click="changeView('cart')"><ion-icon name="cart" class="nav-icon"></ion-icon>My Cart<span class="cart-badge" v-if="cartCount > 0">{{ cartCount }}</span></a></li>
+                    <li><a @click="changeView('checkout')"><ion-icon name="card" class="nav-icon"></ion-icon>Checkout</a></li>
+                    <li><a @click="changeView('profile')"><ion-icon name="person" class="nav-icon"></ion-icon>Profile</a></li>
+                    <li><a @click="changeView('courses')"><ion-icon name="library" class="nav-icon"></ion-icon>My Courses</a></li>
                 </ul>
-                <div class="search-bar">
+                <div class="search-bar" v-if="currentView === 'home'">
                     <div class="search-input-wrapper">
                         <ion-icon name="search" class="search-icon"></ion-icon>
                         <input 
@@ -43,8 +43,37 @@
             </div>
         </nav>
 
-        <!-- HTML for main content page -->
-        <div class="main-container">
+        <!-- My cart page view -->
+        <div v-if="currentView == 'cart'" class="placeholder-view">
+            <h2>{{ currentView.charAt(0).toUpperCase() + currentView.slice(1) }} Page</h2>
+            <p>This is a placeholder for the {{ currentView }} view.</p>
+            <button @click="changeView('home')">Back to Home</button>
+
+        </div>
+
+        <!-- Checkout page view -->
+        <div v-if="currentView == 'checkout'" class="placeholder-view">
+            <h2>{{ currentView.charAt(0).toUpperCase() + currentView.slice(1) }} Page</h2>
+            <p>This is a placeholder for the {{ currentView }} view.</p>
+            <button @click="changeView('home')">Back to Home</button>
+        </div>
+
+        <!-- Profile page view -->
+        <div v-if="currentView == 'profile'" class="placeholder-view">
+            <h2>{{ currentView.charAt(0).toUpperCase() + currentView.slice(1) }} Page</h2>
+            <p>This is a placeholder for the {{ currentView }} view.</p>
+            <button @click="changeView('home')">Back to Home</button>
+        </div>
+
+        <!-- My courses page view -->
+        <div v-if="currentView == 'courses'">
+            <h2>{{ currentView.charAt(0).toUpperCase() + currentView.slice(1) }} Page</h2>
+            <p>This is a placeholder for the {{ currentView }} view.</p>
+            <button @click="changeView('home')">Back to Home</button>
+        </div>
+
+        <!-- HTML for main home page content -->
+        <div class="main-container" v-if="currentView === 'home'">
             <!-- Sidebar -->
             <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
                 <div class="sidebar-content">
