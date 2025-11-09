@@ -1,0 +1,12 @@
+Do login & signup page for both student and tutor
+    -Store current user
+
+Switch pages using navbar links
+Connect to backend using fetch
+Do cart page
+    -Remove item from cart
+Make add to cart button grayed out if no spaces
+Do checkout page
+Do My Courses page to view registered courses and add reviews 
+Do profile page
+
