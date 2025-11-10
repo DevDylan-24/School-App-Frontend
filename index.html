@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <title>School App</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- <link rel="stylesheet" href="login.css"> -->
+    <link rel="stylesheet" href="login.css">
 
 </head>
 <body>
@@ -17,6 +17,7 @@
         <!-- This the the HTML for the login page -->
         <div v-if="currentView == 'login'">
             <div class="container" id="container" :class="{ 'active': isSignUp }">
+                <!-- Sign-up HTML -->
                 <div class="form-container sign-up">
                     <form @submit.prevent="DummyFunction">
                         <h1>Create Account</h1>
@@ -47,6 +48,7 @@
                         <button @click="SignUp">Sign Up</button>
                     </form>
                 </div>
+                <!-- Sign-in HTML -->
                 <div class="form-container sign-in">
                     <form @submit.prevent="DummyFunction">
                         <h1>Sign In</h1>
