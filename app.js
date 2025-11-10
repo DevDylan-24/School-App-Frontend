@@ -298,7 +298,7 @@ new Vue({
                     const result = await response.json();
                     // Add error handling based on response status
                     
-                    // console.log(result);
+                    console.log(result);
                     alert('Login successful!');
                     console.log('Current login user:', data);
 
@@ -307,6 +307,8 @@ new Vue({
                     this.errorPassword = false;
                     this.loginEmail = '';
                     this.loginPassword = '';
+
+                    this.changeView('home');
 
                 } catch (error) {
                     console.error('Error during login:', error);
