@@ -6,13 +6,81 @@
     <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/ionicons/7.1.0/ionicons/ionicons.esm.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script nomodule src="https://cdnjs.cloudflare.com/ajax/libs/ionicons/7.1.0/ionicons/ionicons.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <title>School App</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="login.css">
+
 </head>
 <body>
     <div id="app">
+        <!-- This the the HTML for the login page -->
+        <div v-if="currentView == 'login'" id="login-container">
+            <div class="container" id="container" :class="{ 'active': isSignUp }">
+                <!-- Sign-up HTML -->
+                <div class="form-container sign-up">
+                    <form @submit.prevent="DummyFunction">
+                        <h1>Create Account</h1>
+                        <span>Sign up as:</span>
+                        
+
+                        <div class="glass-radio-group">
+                            <input type="radio" name="plan" id="glass-silver" value="student" v-model="registerRole" checked=""/>
+                            <label id="studentLabel" for="glass-silver" class="default-checked">Student</label>
+
+                            <input type="radio" name="plan" id="glass-gold" value="tutor" v-model="registerRole" />
+                            <label for="glass-gold" @click="removeColorClass">Tutor</label>
+
+                            <div class="glass-glider"></div>
+                        </div>
+
+
+                        <input type="text" placeholder="Name" v-model="registerName">
+                        <input type="email" placeholder="Email" v-model="registerEmail">
+                        <input type="password" placeholder="Password" v-model="registerPassword">
+
+                        <div v-if="errorName && errorEmail" class="error-message">Please enter a valid name and email</div>
+                        <div v-else-if="errorEmail" class="error-message">Please enter a valid email</div>
+                        <div v-else-if="errorName" class="error-message">Please enter a valid name</div>
+                        <div v-if="errorPassword" class="error-message" style="text-align: center;">Password must be at least 8 characters, contain at least one capital letter and number</div>
+
+
+                        <button @click="SignUp">Sign Up</button>
+                    </form>
+                </div>
+                <!-- Sign-in HTML -->
+                <div class="form-container sign-in">
+                    <form @submit.prevent="DummyFunction">
+                        <h1>Sign In</h1>
+                        <input type="email" placeholder="Email" v-model="loginEmail">
+                        <input type="password" placeholder="Password" v-model="loginPassword">
+
+
+                        <div v-if="errorEmail" class="error-message">Please enter a valid email</div>
+                        <div v-if="errorPassword" class="error-message" style="text-align: center;">Invalid password entered</div>
+
+                        <button @click="Login">Sign In</button>
+                    </form>
+                </div>
+                <div class="toggle-container">
+                    <div class="toggle">
+                        <div class="toggle-panel toggle-left">
+                            <h1>Welcome Back!</h1>
+                            <p>We're excited to see what you'll learn today. Log in to access your courses and resources.</p>
+                            <button class="hidden" id="login" @click="ToggleSignUp">Sign In</button>
+                        </div>
+                        <div class="toggle-panel toggle-right">
+                            <h1>Hello, Dear User!</h1>
+                            <p>Register with your personal details and let's kickstart your learning adventure</p>
+                            <button class="hidden" id="register" @click="ToggleSignUp">Sign Up</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- HTML for navbar -->
-        <nav class="navbar">
+        <nav class="navbar" v-if="currentView !== 'login'">
             <div class="navbar-content">
                 <div class="logo">
                     <ion-icon name="book"></ion-icon>
@@ -42,6 +110,7 @@
                 </div>
             </div>
         </nav>
+
 
         <!-- My cart page view -->
         <div v-if="currentView == 'cart'" class="placeholder-view">

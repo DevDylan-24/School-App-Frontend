@@ -1,7 +1,17 @@
 new Vue({
    el: '#app',
     data: {
-        currentView: 'home',
+        currentView: 'login',
+        isSignUp: false,
+        errorName: false,
+        errorEmail: false,
+        errorPassword: false,
+        registerName: '',
+        registerEmail: '',
+        registerPassword: '',
+        registerRole: 'student',
+        loginEmail: '',
+        loginPassword: '',
         searchQuery: '',
         selectedSubjects: [],
         selectedLocations: [],
@@ -198,8 +208,122 @@ new Vue({
         changeView(view) {
             this.currentView = view;
         },
+        ToggleSignUp() {
+            this.isSignUp = !this.isSignUp;
+        },
         toggleSidebar() {
             this.sidebarCollapsed = !this.sidebarCollapsed;
+        },
+        removeColorClass(){
+            document.getElementById('studentLabel').classList.remove('default-checked');
+        },
+        async SignUp() {
+            // Check if name, email and password are valid
+            this.errorName = this.registerName.trim() === '';
+            this.errorEmail = !this.registerEmail.includes('@');
+            this.errorPassword = !this.isPasswordValid(this.registerPassword);
+
+            if (this.errorName || this.errorEmail || this.errorPassword) {
+                return;
+            }else{
+                // If no errors, proceed with registration
+                // Send register data to backend 
+                try {
+                    let url = 'http://localhost:3000/api/register';
+
+                    const data = {
+                        name: this.registerName,
+                        email: this.registerEmail,
+                        password: this.registerPassword,
+                        role: this.registerRole
+                    };
+                    // Using fetch to send POST request
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+                    // Add error handling based on response status
+                    console.log(result);
+
+                    alert('Registration successful!');
+                    this.changeView('login');
+                    
+                    // Changing back the form data to default
+                    this.errorName = false;
+                    this.errorEmail = false;
+                    this.errorPassword = false;
+                    this.registerName = '';
+                    this.registerEmail = '';
+                    this.registerPassword = '';
+                    this.registerRole = 'student';
+
+                    console.log('Registered user:', data);
+
+                } catch (error) {
+                    console.error('Error during registration:', error);
+                    alert('An error occurred during registration. Please try again later.');
+                }
+
+            }
+        },
+        async Login() {
+            // Check if email and password are valid
+            this.errorEmail = !this.loginEmail.includes('@');
+            this.errorPassword = !this.isPasswordValid(this.loginPassword);
+
+            if (this.errorName || this.errorEmail || this.errorPassword) {
+                return;
+            }else{
+                // If no errors, proceed with login
+                try {
+                    let url = 'http://localhost:3000/api/login';
+
+                    const data = {  
+                        email: this.loginEmail,
+                        password: this.loginPassword
+                    };
+                    // Using fetch to send POST request
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+                    // Add error handling based on response status
+                    
+                    console.log(result);
+                    alert('Login successful!');
+                    console.log('Current login user:', data);
+
+                    // Changing back the form data to default
+                    this.errorEmail = false;
+                    this.errorPassword = false;
+                    this.loginEmail = '';
+                    this.loginPassword = '';
+
+                    this.changeView('home');
+
+                } catch (error) {
+                    console.error('Error during login:', error);
+                    alert('An error occurred during login. Please try again later.');
+                }
+            }
+
+        },
+        DummyFunction() {
+          return;
+        },
+        isPasswordValid(password) {
+            // Check for at least 8 characters, one uppercase letter, and one number
+            const regex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+            return regex.test(password);
         },
         filterLessons() {
             let filtered = this.lessons;

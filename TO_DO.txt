@@ -1,8 +1,9 @@
-Do login & signup page for both student and tutor
+Do login & signup page for both student and tutor               -> Done
+    -Validate user input for login and signup
     -Store current user
 
 Switch pages using navbar links                                 -> Done
-Connect to backend using fetch
+Connect to backend using fetch                                  -> In Progress
 Do cart page
     -Remove item from cart
 Make add to cart button grayed out if no spaces
@@ -10,3 +11,7 @@ Do checkout page
 Do My Courses page to view registered courses and add reviews 
 Do profile page
 
+
+Add ascending and descending order sorting for attributes (Check module handbook)
+Error handling in frontend based on the response status from backend        -> In Progress
+(e.g User already exists in DB, etc..)
