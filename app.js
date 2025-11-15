@@ -3,11 +3,14 @@ import {get, post, put, del, upload, isAuthenticated, getToken, setToken, remove
 new Vue({
    el: '#app',
     data: {
-        currentView: 'home',
+        currentView: 'login', // Possible views: 'login', 'checkout', 'home', 'myCourses', 'cart'
         isSignUp: false,
         errorName: false,
         errorEmail: false,
         errorPassword: false,
+        registerError:false,
+        loginError: false,
+        errorLoginMessage:"",
         registerName: '',
         registerEmail: '',
         registerPassword: '',
@@ -55,13 +58,13 @@ new Vue({
             this.errorEmail = !this.registerEmail.includes('@');
             this.errorPassword = !this.isPasswordValid(this.registerPassword);
 
+            this.registerError = false;
             if (this.errorName || this.errorEmail || this.errorPassword) {
                 return;
             }else{
                 // If no errors, proceed with registration
                 // Send register data to backend 
                 try {
-                    let url = 'http://localhost:3000/api/register';
 
                     const data = {
                         name: this.registerName,
@@ -70,16 +73,18 @@ new Vue({
                         role: this.registerRole
                     };
                     // Using fetch to send POST request
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(data)
-                    });
+                    const result = await post('/users/register', data);
 
-                    const result = await response.json();
                     // Add error handling based on response status
+                    if(result.status && (result.status !== 200 || result.status !== 201)){
+                        console.log('Registration failed:', result.message);
+                        this.registerError = true;
+                        
+                        return;
+                    }else{
+                        console.log('Login successful, new User:', result.message);
+                    }
+
                     console.log(result);
 
                     alert('Registration successful!');
@@ -108,30 +113,35 @@ new Vue({
             this.errorEmail = !this.loginEmail.includes('@');
             this.errorPassword = !this.isPasswordValid(this.loginPassword);
 
+            this.loginError = false;
+            this.errorLoginMessage = "";
+
             if (this.errorName || this.errorEmail || this.errorPassword) {
                 return;
             }else{
                 // If no errors, proceed with login
                 try {
-                    let url = 'http://localhost:3000/api/login';
 
                     const data = {  
                         email: this.loginEmail,
                         password: this.loginPassword
                     };
                     // Using fetch to send POST request
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(data)
-                    });
-                    const result = await response.json();
+                    const result = await post('/users/login', data);
+                    
                     // Add error handling based on response status
+                    if(result.status && (result.status !== 200 || result.status !== 201)){
+                        console.log('Login failed:', result.message);
+                        this.loginError = true;
+                        this.errorLoginMessage = result.message;
+
+                        return;
+                    }else{
+                        console.log('Login successful, token:', result.token);
+                        setToken(result.token);
+                    }
                     
                     console.log(result);
-                    alert('Login successful!');
                     console.log('Current login user:', data);
 
                     // Changing back the form data to default
@@ -144,7 +154,7 @@ new Vue({
 
                 } catch (error) {
                     console.error('Error during login:', error);
-                    alert('An error occurred during login. Please try again later.');
+                    alert('An error occurred during login. ' + error.message);
                 }
             }
 

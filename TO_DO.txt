@@ -15,3 +15,5 @@ Do profile page
 Add ascending and descending order sorting for attributes (Check module handbook)
 Error handling in frontend based on the response status from backend        -> In Progress
 (e.g User already exists in DB, etc..)
+
+Book multiple spaces per order

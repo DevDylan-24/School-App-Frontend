@@ -8,7 +8,7 @@ async function request(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
   
   // Get JWT token from localStorage
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token') || null;
   
   // Set up headers
   const headers = {
@@ -26,15 +26,22 @@ async function request(endpoint, options = {}) {
     ...options,
     headers,
   };
-  
+
+
   try {
     const response = await fetch(url, config);
+    
     
     // Check if response is OK
     if (!response.ok) {
       // Handle HTTP errors
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        const status = response.status;
+        const errorData = await response.json().catch(() => ({}));
+        
+        // Append status to errorData
+        errorData.status = status;
+        return errorData; // Return error data if available
+
     }
     
     // Parse JSON response
@@ -43,13 +50,12 @@ async function request(endpoint, options = {}) {
     
   } catch (error) {
     console.error('API request failed:', error);
-    throw error;
+
   }
 }
 
 
 // GET request
-
 export async function get(endpoint) {
   return request(endpoint, {
     method: 'GET',

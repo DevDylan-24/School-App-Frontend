@@ -39,10 +39,12 @@
                         <input type="email" placeholder="Email" v-model="registerEmail">
                         <input type="password" placeholder="Password" v-model="registerPassword">
 
-                        <div v-if="errorName && errorEmail" class="error-message">Please enter a valid name and email</div>
-                        <div v-else-if="errorEmail" class="error-message">Please enter a valid email</div>
-                        <div v-else-if="errorName" class="error-message">Please enter a valid name</div>
+                        <div v-if="errorName && errorEmail" class="error-message" style="text-align: center;">Please enter a valid name and email</div>
+                        <div v-else-if="errorEmail" class="error-message" style="text-align: center;">Please enter a valid email</div>
+                        <div v-else-if="errorName" class="error-message" style="text-align: center;">Please enter a valid name</div>
                         <div v-if="errorPassword" class="error-message" style="text-align: center;">Password must be at least 8 characters, contain at least one capital letter and number</div>
+
+                        <div v-if="registerError" class="error-message" style="text-align: center;"> User already exists. Please login to your account</div>
 
 
                         <button @click="SignUp">Sign Up</button>
@@ -56,8 +58,9 @@
                         <input type="password" placeholder="Password" v-model="loginPassword">
 
 
-                        <div v-if="errorEmail" class="error-message">Please enter a valid email</div>
+                        <div v-if="errorEmail" class="error-message" style="text-align: center;">Please enter a valid email</div>
                         <div v-if="errorPassword" class="error-message" style="text-align: center;">Invalid password entered</div>
+                        <div v-if="loginError" class="error-message" style="text-align: center;"> {{ errorLoginMessage }} </div>
 
                         <button @click="Login">Sign In</button>
                     </form>
