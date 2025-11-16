@@ -4,6 +4,7 @@ Do login & signup page for both student and tutor               -> Done
 
 Switch pages using navbar links                                 -> Done
 Connect to backend using fetch                                  -> In Progress
+
 Do cart page
     -Remove item from cart
 Make add to cart button grayed out if no spaces

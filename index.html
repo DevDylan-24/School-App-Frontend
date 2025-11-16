@@ -225,7 +225,7 @@
                 </div>
 
                 <div class="lessons-grid" v-if="filteredLessons.length > 0">
-                    <div class="lesson-card" v-for="lesson in filteredLessons" :key="lesson.id">
+                    <div class="lesson-card" v-for="lesson in filteredLessons" :key="lesson._id">
                         <div class="lesson-image" :style="{ backgroundImage: 'url(' + lesson.image + ')' }"></div>
                         <div class="lesson-content">
                             <h3 class="lesson-title">{{ lesson.title }}</h3>
@@ -247,6 +247,10 @@
                                     <ion-icon name="time-outline" class="detail-icon"></ion-icon>
                                     <span>{{ lesson.duration }}</span>
                                 </div>
+                                <div class="detail-item">
+                                    <ion-icon name="people-outline" class="detail-icon"></ion-icon>
+                                    <span>Spaces left: {{ lesson.spaces }}</span>
+                                </div>
                                 <div class="lesson-rating">
                                     <span class="stars">★★★★★</span>
                                     <span>{{ lesson.rating }}</span>
@@ -256,16 +260,36 @@
                                     Only {{ lesson.spaces }} spaces left!
                                 </div>
                             </div>
+                           
 
                             <div class="lesson-footer">
+
                                 <div class="lesson-price">${{ lesson.price }}</div>
+                                 <div>Spaces booked : {{ lesson.spacesBooked }}</div>
+                            <button 
+                                    class="add-to-cart-btn" 
+                                    @click="incSpacesBooked(lesson)"
+                                    :disabled="checkSpaces(lesson) || isInCart(lesson._id)"
+                                >
+                                <ion-icon style="font-size: 1.2rem;" name="chevron-up-outline"></ion-icon>
+                                </button>
+
+                                 <button 
+                                    class="add-to-cart-btn" 
+                                    @click="decSpacesBooked(lesson)"
+                                    :disabled="checkDecSpaces(lesson) || isInCart(lesson._id)"
+                                >
+                                <ion-icon style="font-size: 1.2rem;" name="chevron-down-outline"></ion-icon>
+                                </button>
                                 <button 
                                     class="add-to-cart-btn"
                                     @click="addToCart(lesson)"
-                                    :disabled="isInCart(lesson.id)"
+                                    :disabled="isInCart(lesson._id)"
                                 >
-                                    {{ isInCart(lesson.id) ? 'In Cart' : 'Add to Cart' }}
+                                    {{ isInCart(lesson._id) ? 'In Cart' : 'Add to Cart' }}
                                 </button>
+
+                                
                             </div>
                         </div>
                     </div>

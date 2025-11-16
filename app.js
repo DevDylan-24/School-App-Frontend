@@ -3,7 +3,7 @@ import {get, post, put, del, upload, isAuthenticated, getToken, setToken, remove
 new Vue({
    el: '#app',
     data: {
-        currentView: 'login', // Possible views: 'login', 'checkout', 'home', 'myCourses', 'cart'
+        currentView: 'home', // Possible views: 'login', 'checkout', 'home', 'myCourses', 'cart'
         isSignUp: false,
         errorName: false,
         errorEmail: false,
@@ -207,12 +207,47 @@ new Vue({
             this.filteredLessons = filtered;
         },
         addToCart(lesson) {
-            if (!this.isInCart(lesson.id)) {
+            if (!this.isInCart(lesson._id)) {
+                if (lesson.spacesBooked == 0) {
+                    lesson.spacesBooked++;
+                }
                 this.cart.push(lesson);
+                console.log(this.cart)
+            }
+        },
+        incSpacesBooked(lesson){
+
+            if (lesson.spaces > 0) {
+                lesson.spacesBooked++;
+                lesson.spaces--;
+                return false;
+            }else{
+                return true;
+            }
+        },
+        decSpacesBooked(lesson){
+            if(!((lesson.spaces + 1) > (lesson.spaces + lesson.spacesBooked))){
+                lesson.spacesBooked--;
+                lesson.spaces++;
+            }
+        },
+        checkDecSpaces(lesson){
+            if(lesson.spacesBooked == 0){
+                return true;
+            }else{
+                return false;
+            }
+
+        },  
+        checkSpaces(lesson){
+            if (lesson.spaces > 0) {
+                return false;
+            }else{
+                return true;
             }
         },
         isInCart(lessonId) {
-            return this.cart.some(item => item.id === lessonId);
+            return this.cart.some(item => item._id === lessonId);
         },
         clearFilters() {
             this.searchQuery = '';
@@ -227,6 +262,9 @@ new Vue({
             try {
                 // Fetch lessons from backend API
                 this.lessons = await get('/lessons')
+                this.lessons.forEach(lesson => {
+                   lesson.spacesBooked = 0; 
+                });
                 this.filterLessons();
                 console.log('Fetched lessons:', this.lessons);
 
