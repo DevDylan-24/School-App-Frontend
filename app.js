@@ -26,7 +26,8 @@ new Vue({
         cart: [],
         sidebarCollapsed: false,
         lessons: [],
-        filteredLessons: []
+        filteredLessons: [],
+        total: 0.00
     },
     computed: {
         subjects() {
@@ -37,6 +38,12 @@ new Vue({
         },
         cartCount() {
             return this.cart.length;
+        },
+        subtotal() {
+            return this.cart.reduce((sum, item) => sum + (item.price * item.spacesBooked), 0);
+        },
+        total() {
+            return this.subtotal; // Can add tax or fees here if needed
         }
     },
     methods: {
@@ -206,6 +213,13 @@ new Vue({
 
             this.filteredLessons = filtered;
         },
+        calculateTotal(){
+            const sum = this.cart.reduce((total, item) => {
+                return total + (item.price * item.spacesBooked);
+            }, 0);
+
+            this.total = sum;
+        },
         addToCart(lesson) {
             if (!this.isInCart(lesson._id)) {
                 if (lesson.spacesBooked == 0) {
@@ -214,12 +228,39 @@ new Vue({
                 this.cart.push(lesson);
                 console.log(this.cart)
             }
+            this.calculateTotal()
+        },
+        updateCart(lesson){
+
+            const itemIndex = this.cart.findIndex(item => item._id === lesson._id);
+
+            if (itemIndex !== -1) {
+            this.$set(this.cart[itemIndex], 'spacesBooked', lesson.spacesBooked);
+            }
+
+            console.log(this.cart); 
+            this.calculateTotal()
+        },
+        removeFromCart(lessonId){
+            this.cart = this.cart.filter(lesson => lesson._id != lessonId)
+        },
+        wrapperIncCartPage(lesson){
+            this.incSpacesBooked(lesson);
+            this.updateCart(lesson);
+
+        },
+        wrapperDecCartPage(lesson){
+            this.decSpacesBooked(lesson);
+            this.updateCart(lesson);
+
+
         },
         incSpacesBooked(lesson){
 
             if (lesson.spaces > 0) {
-                lesson.spacesBooked++;
-                lesson.spaces--;
+                this.$set(lesson, 'spacesBooked', lesson.spacesBooked + 1);
+                this.$set(lesson, 'spaces', lesson.spaces - 1);
+
                 return false;
             }else{
                 return true;
@@ -227,8 +268,8 @@ new Vue({
         },
         decSpacesBooked(lesson){
             if(!((lesson.spaces + 1) > (lesson.spaces + lesson.spacesBooked))){
-                lesson.spacesBooked--;
-                lesson.spaces++;
+                this.$set(lesson, 'spacesBooked', lesson.spacesBooked - 1);
+                this.$set(lesson, 'spaces', lesson.spaces + 1);
             }
         },
         checkDecSpaces(lesson){

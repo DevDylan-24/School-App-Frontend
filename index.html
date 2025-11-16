@@ -10,6 +10,7 @@
     <title>School App</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="cart.css">
 
 </head>
 <body>
@@ -117,10 +118,119 @@
 
         <!-- My cart page view -->
         <div v-if="currentView == 'cart'" class="placeholder-view">
-            <h2>{{ currentView.charAt(0).toUpperCase() + currentView.slice(1) }} Page</h2>
-            <p>This is a placeholder for the {{ currentView }} view.</p>
-            <button @click="changeView('home')">Back to Home</button>
+            <div class="cart-container">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>
+                        <ion-icon name="cart"></ion-icon>
+                        Shopping Cart
+                    </h1>
+                    <p class="items-count" v-if="cart.length > 0">{{ cart.length }} {{ cart.length === 1 ? 'item' : 'items' }} in your cart</p>
+                </div>
 
+                <!-- Empty Cart State -->
+                <div class="empty-cart" v-if="cart.length === 0">
+                    <ion-icon name="cart-outline"></ion-icon>
+                    <h2>Your cart is empty</h2>
+                    <p>Add some lessons to get started with your learning journey!</p>
+                    <button class="browse-btn" @click="changeView('home')">
+                        <ion-icon name="search"></ion-icon>
+                        Browse Lessons
+                    </button>
+                </div>
+
+                <!-- Cart Content -->
+                <div class="cart-content" v-else>
+                    <!-- Cart Items -->
+                    <div class="cart-items">
+                        <div class="cart-item" v-for="lesson in cart" :key="lesson._id">
+                            <div class="item-image" :style="{ backgroundImage: 'url(' + lesson.image + ')' }"></div>
+                            <div class="item-details">
+                                <div class="item-header">
+                                    <h3 class="item-title">{{ lesson.title }}</h3>
+                                    <button class="remove-btn" @click="removeFromCart(lesson._id)">
+                                        <ion-icon name="trash-bin-sharp"></ion-icon>
+                                        Remove
+                                    </button>
+                                </div>
+
+                                <div class="item-info">
+                                    <div class="info-item">
+                                        <ion-icon name="person-outline" class="info-icon"></ion-icon>
+                                        <span>{{ lesson.tutor }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <ion-icon name="location-outline" class="info-icon"></ion-icon>
+                                        <span>{{ lesson.location }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <ion-icon name="calendar-outline" class="info-icon"></ion-icon>
+                                        <span>{{ lesson.schedule }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <ion-icon name="time-outline" class="info-icon"></ion-icon>
+                                        <span>{{ lesson.duration }}</span>
+                                    </div>
+
+                                    <div class="detail-item">
+                                        <ion-icon name="people-outline" class="detail-icon"></ion-icon>
+                                        <span>Spaces left: {{ lesson.spaces }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="item-footer">
+                                    <div class="item-price">${{ lesson.price }}</div>
+                                     <div style="font-size: 1.2rem;">Spaces booked : {{ lesson.spacesBooked }}</div>
+                                        <button 
+                                            class="add-to-cart-btn" 
+                                            @click="wrapperIncCartPage(lesson)"
+                                            :disabled="checkSpaces(lesson)"
+                                        >
+                                        <ion-icon style="font-size: 1.2rem;" name="chevron-up-outline"></ion-icon>
+                                        </button>
+
+                                        <button 
+                                            class="add-to-cart-btn" 
+                                            @click="wrapperDecCartPage(lesson)"
+                                            :disabled="checkDecSpaces(lesson)"
+                                        >
+                                        <ion-icon style="font-size: 1.2rem;" name="chevron-down-outline"></ion-icon>
+                                        </button>
+                                    <div class="item-rating">
+                                        <span class="stars">★★★★★</span>
+                                        <span>{{ lesson.rating }} ({{ lesson.reviews }})</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cart Summary -->
+                    <div class="cart-summary">
+                        <h2 class="summary-title">Order Summary</h2>
+                        
+                        <div class="summary-item subtotal" v-for="lesson in cart" :key="lesson._id">
+                            <span> {{lesson.title}} </span>
+                            <span class="summary-price"> ${{lesson.price * lesson.spacesBooked}} </span>
+                        </div>
+
+                        <div class="summary-item total">
+                            <span>Total</span>
+                            <span class="total-price">${{ total.toFixed(2) }}</span>
+                        </div>
+
+                        <button class="checkout-btn" @click="changeView('checkout')">
+                            <ion-icon name="card"></ion-icon>
+                            Proceed to Checkout
+                        </button>
+
+                        <button class="continue-shopping" @click="changeView('home')">
+                            <ion-icon name="arrow-back"></ion-icon>
+                            Continue Shopping
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Checkout page view -->
@@ -266,7 +376,7 @@
 
                                 <div class="lesson-price">${{ lesson.price }}</div>
                                  <div>Spaces booked : {{ lesson.spacesBooked }}</div>
-                            <button 
+                                <button 
                                     class="add-to-cart-btn" 
                                     @click="incSpacesBooked(lesson)"
                                     :disabled="checkSpaces(lesson) || isInCart(lesson._id)"
