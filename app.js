@@ -314,6 +314,13 @@ new Vue({
 
             // Using fetch to send POST request
             const result = await post('/orders', newOrder);
+            // using fetch to send PUT request to update number of spaces in lessons collection
+            for(const lesson of this.cart){
+                const {spacesBooked, _id, ...restOflesson} = lesson;
+                console.log(restOflesson);
+                const resultPut = await put(`/lessons/${lesson._id}`, restOflesson)
+                console.log(resultPut);
+            }
             console.log(result);
             this.cart=[];
             this.total = 0.00;
