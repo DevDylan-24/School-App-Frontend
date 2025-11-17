@@ -17,4 +17,11 @@ Add ascending and descending order sorting for attributes (Check module handbook
 Error handling in frontend based on the response status from backend        -> In Progress
 (e.g User already exists in DB, etc..)
 
-Book multiple spaces per order
+Book multiple spaces per order          -> Done
+Book multiple spaces per order (Need to fix in backend)
+
+Mention in next commit that cart page was added with dynamic price display when quantity is changed(Accidently used past commit message)
+
+Increase the max size of the website to account for higher resolution
+
+Check when to load lessons for info to be accurate

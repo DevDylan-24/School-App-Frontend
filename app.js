@@ -3,7 +3,7 @@ import {get, post, put, del, upload, isAuthenticated, getToken, setToken, remove
 new Vue({
    el: '#app',
     data: {
-        currentView: 'home', // Possible views: 'login', 'checkout', 'home', 'myCourses', 'cart'
+        currentView: 'login', // Possible views: 'login', 'checkout', 'home', 'myCourses', 'cart'
         isSignUp: false,
         errorName: false,
         errorEmail: false,
@@ -27,7 +27,8 @@ new Vue({
         sidebarCollapsed: false,
         lessons: [],
         filteredLessons: [],
-        total: 0.00
+        total: 0.00,
+        userId:''
     },
     computed: {
         subjects() {
@@ -48,6 +49,9 @@ new Vue({
     },
     methods: {
         changeView(view) {
+            if(view == 'home'){
+                this.fetchLessons();
+            }
             this.currentView = view;
         },
         ToggleSignUp() {
@@ -89,7 +93,7 @@ new Vue({
                         
                         return;
                     }else{
-                        console.log('Login successful, new User:', result.message);
+                        console.log('Registration successful, new User:', result.message);
                     }
 
                     console.log(result);
@@ -149,6 +153,8 @@ new Vue({
                     }
                     
                     console.log(result);
+                    // Assign current userId
+                    this.userId = result._id;
                     console.log('Current login user:', data);
 
                     // Changing back the form data to default
@@ -298,6 +304,27 @@ new Vue({
             this.priceMin = null;
             this.priceMax = null;
             this.filterLessons();
+        },
+        async checkout(){
+            const newOrder = {
+                userId : this.userId,
+                lessons : this.cart,
+                totalPrice: this.total
+            }
+
+            // Using fetch to send POST request
+            const result = await post('/orders', newOrder);
+            console.log(result);
+            this.cart=[];
+            this.total = 0.00;
+
+            
+            if(result.orderId){
+                alert("Your purchase was successful, redirecting to Home page");
+                this.changeView('home');
+            }
+
+                    
         },
         async fetchLessons() {
             try {
