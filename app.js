@@ -3,7 +3,7 @@ import {get, post, put, del, upload, isAuthenticated, getToken, setToken, remove
 new Vue({
    el: '#app',
     data: {
-        currentView: 'login', // Possible views: 'login', 'checkout', 'home', 'myCourses', 'cart'
+        currentView: 'home', // Possible views: 'login', 'checkout', 'home', 'myCourses', 'cart'
         isSignUp: false,
         errorName: false,
         errorEmail: false,
@@ -28,7 +28,8 @@ new Vue({
         lessons: [],
         filteredLessons: [],
         total: 0.00,
-        userId:''
+        userId:'',
+        isDisabled:true,
     },
     computed: {
         subjects() {
@@ -53,6 +54,13 @@ new Vue({
                 this.fetchLessons();
             }
             this.currentView = view;
+        },
+        toggleCartAndHome(){
+            if(this.currentView == 'home'){
+                this.changeView('cart');
+            }else{
+                this.changeView('home')
+            }
         },
         ToggleSignUp() {
             this.isSignUp = !this.isSignUp;
@@ -235,7 +243,14 @@ new Vue({
                 console.log(this.cart)
             }
             this.calculateTotal()
+            this.isDisabled = false;
         },
+        isCartEmpty(){
+            if (this.cart.length == 0){
+                this.isDisabled = true
+            }
+        },
+
         updateCart(lesson){
 
             const itemIndex = this.cart.findIndex(item => item._id === lesson._id);
@@ -249,6 +264,7 @@ new Vue({
         },
         removeFromCart(lessonId){
             this.cart = this.cart.filter(lesson => lesson._id != lessonId)
+            this.isCartEmpty()
         },
         wrapperIncCartPage(lesson){
             this.incSpacesBooked(lesson);

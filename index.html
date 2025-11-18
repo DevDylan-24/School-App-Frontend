@@ -91,11 +91,11 @@
                     The Learning Lounge
                 </div>
                 <ul class="nav-links">
-                    <li><a @click="changeView('home')"><ion-icon name="home" class="nav-icon"></ion-icon>Home</a></li>
-                    <li><a @click="changeView('cart')"><ion-icon name="cart" class="nav-icon"></ion-icon>My Cart<span class="cart-badge" v-if="cartCount > 0">{{ cartCount }}</span></a></li>
+                    <li><button @click="changeView('home')"><ion-icon name="home" class="nav-icon"></ion-icon>Home</button></li>
+                    <li><button @click="toggleCartAndHome('cart')" :disabled="isDisabled"><ion-icon name="cart" class="nav-icon"></ion-icon>My Cart<span class="cart-badge" v-if="cartCount > 0">{{ cartCount }}</span></button></li>
                     <li><a @click="changeView('checkout')"><ion-icon name="card" class="nav-icon"></ion-icon>Checkout</a></li>
                     <li><a @click="changeView('profile')"><ion-icon name="person" class="nav-icon"></ion-icon>Profile</a></li>
-                    <li><a @click="changeView('courses')"><ion-icon name="library" class="nav-icon"></ion-icon>My Courses</a></li>
+                    <li><button @click="changeView('courses')"><ion-icon name="library" class="nav-icon"></ion-icon>My Courses</button></li>
                 </ul>
                 <div class="search-bar" v-if="currentView === 'home'">
                     <div class="search-input-wrapper">

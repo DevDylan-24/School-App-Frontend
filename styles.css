@@ -48,15 +48,22 @@ body {
     align-items: center;
 }
 
-.nav-links a {
+.nav-links button {
     color: white;
+    background-color: transparent;
     text-decoration: none;
     transition: all 0.3s ease;
     position: relative;
     padding: 0.5rem 0;
     display: flex;
     align-items: center;
+    border: none;
     gap: 0.5rem;
+    font-size: 1.05rem;
+}
+
+.nav-links button:disabled{
+    cursor: not-allowed;
 }
 
 .nav-icon {
@@ -65,7 +72,7 @@ body {
     align-items: center;
 }
 
-.nav-links a::after {
+.nav-links button::after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -76,17 +83,21 @@ body {
     transition: width 0.3s ease;
 }
 
-.nav-links a:hover {
+.nav-links button:hover {
     color: #ffd700;
     transform: translateY(-2px);
     cursor: pointer;
 }
 
-.nav-links a:hover::after {
+.nav-links button:disabled:hover{
+    cursor: not-allowed;
+}
+
+.nav-links button:hover::after {
     width: 100%;
 }
 
-.nav-links a:active {
+.nav-links button:active {
     transform: translateY(0);
 }
 
