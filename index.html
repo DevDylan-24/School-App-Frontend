@@ -39,11 +39,14 @@
                         <input type="text" placeholder="Name" v-model="registerName">
                         <input type="email" placeholder="Email" v-model="registerEmail">
                         <input type="password" placeholder="Password" v-model="registerPassword">
+                        <input type="text" placeholder="Phone Number" v-model="registerPhoneNumber">
+                        
 
                         <div v-if="errorName && errorEmail" class="error-message" style="text-align: center;">Please enter a valid name and email</div>
                         <div v-else-if="errorEmail" class="error-message" style="text-align: center;">Please enter a valid email</div>
                         <div v-else-if="errorName" class="error-message" style="text-align: center;">Please enter a valid name</div>
                         <div v-if="errorPassword" class="error-message" style="text-align: center;">Password must be at least 8 characters, contain at least one capital letter and number</div>
+                        <div v-if="errorPhoneNumber" class="error-message" style="text-align: center;">Invalid phone number, Enter a Mauritian phone number please</div>
 
                         <div v-if="registerError" class="error-message" style="text-align: center;"> User already exists. Please login to your account</div>
 
@@ -219,7 +222,15 @@
                             <span class="total-price">${{ total.toFixed(2) }}</span>
                         </div>
 
-                        <button class="checkout-btn" @click="checkout">
+                        <div class="checkout-input">
+                            <input type="text" placeholder="Name" v-model="checkoutName">
+                            <input type="text" placeholder="Phone Number" v-model="checkoutPhoneNumber">
+                        </div>
+
+                        <div v-if="errorCheckoutPhoneNumber || errorCheckoutName" class="error-message" style="text-align: center;">Invalid credentials entered</div>
+
+                        <button class="checkout-btn" @click="checkout" :disabled="!isCheckoutValid"> 
+                            <!--  this.disableCheckout = false; -->
                             <ion-icon name="card"></ion-icon>
                             Checkout
                         </button>

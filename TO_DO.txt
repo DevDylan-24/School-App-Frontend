@@ -23,5 +23,3 @@ Book multiple spaces per order (Need to fix in backend)
 Increase the max size of the website to account for higher resolution
 
 Check when to load lessons for info to be accurate
-
-Add phone number in register with regex and in checkout page(follow module handbook)

@@ -3,17 +3,23 @@ import {get, post, put, del, upload, isAuthenticated, getToken, setToken, remove
 new Vue({
    el: '#app',
     data: {
-        currentView: 'home', // Possible views: 'login', 'checkout', 'home', 'myCourses', 'cart'
+        currentView: 'login', // Possible views: 'login', 'checkout', 'home', 'myCourses', 'cart'
         isSignUp: false,
         errorName: false,
         errorEmail: false,
         errorPassword: false,
+        errorPhoneNumber: false,
         registerError:false,
         loginError: false,
+        errorCheckoutName: false,
+        errorCheckoutPhoneNumber: false,
         errorLoginMessage:"",
         registerName: '',
         registerEmail: '',
         registerPassword: '',
+        registerPhoneNumber: '',
+        checkoutName:'',
+        checkoutPhoneNumber:'',
         registerRole: 'student',
         loginEmail: '',
         loginPassword: '',
@@ -30,6 +36,8 @@ new Vue({
         total: 0.00,
         userId:'',
         isDisabled:true,
+        currUser:null,
+        disableCheckout:true
     },
     computed: {
         subjects() {
@@ -45,7 +53,10 @@ new Vue({
             return this.cart.reduce((sum, item) => sum + (item.price * item.spacesBooked), 0);
         },
         total() {
-            return this.subtotal; // Can add tax or fees here if needed
+            return this.subtotal; 
+        },
+        isCheckoutValid(){
+            return  this.checkoutName.trim() !== '' && this.checkoutPhoneNumber.trim() !== '';
         }
     },
     methods: {
@@ -73,12 +84,13 @@ new Vue({
         },
         async SignUp() {
             // Check if name, email and password are valid
-            this.errorName = this.registerName.trim() === '';
+            this.errorName = !this.isNameValid(this.registerName.trim());
             this.errorEmail = !this.registerEmail.includes('@');
             this.errorPassword = !this.isPasswordValid(this.registerPassword);
+            this.errorPhoneNumber = !this.isPhoneNumberValid(this.registerPhoneNumber)
 
             this.registerError = false;
-            if (this.errorName || this.errorEmail || this.errorPassword) {
+            if (this.errorName || this.errorEmail || this.errorPassword || this.errorPhoneNumber) {
                 return;
             }else{
                 // If no errors, proceed with registration
@@ -89,6 +101,7 @@ new Vue({
                         name: this.registerName,
                         email: this.registerEmail,
                         password: this.registerPassword,
+                        phone: this.registerPhoneNumber,
                         role: this.registerRole
                     };
                     // Using fetch to send POST request
@@ -113,9 +126,11 @@ new Vue({
                     this.errorName = false;
                     this.errorEmail = false;
                     this.errorPassword = false;
+                    this.errorPhoneNumber = false;
                     this.registerName = '';
                     this.registerEmail = '';
                     this.registerPassword = '';
+                    this.registerPhoneNumber = '';
                     this.registerRole = 'student';
 
                     console.log('Registered user:', data);
@@ -163,7 +178,11 @@ new Vue({
                     console.log(result);
                     // Assign current userId
                     this.userId = result._id;
-                    console.log('Current login user:', data);
+
+                    const response = await get(`/users/${this.userId}`)
+                    this.currUser = response.user;
+                    console.log('Current login user:', this.currUser);
+
 
                     // Changing back the form data to default
                     this.errorEmail = false;
@@ -187,6 +206,14 @@ new Vue({
             // Check for at least 8 characters, one uppercase letter, and one number
             const regex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
             return regex.test(password);
+        },
+        isNameValid(name){
+            const regex = /^[A-Za-z]*$/;
+            return regex.test(name);
+        },
+        isPhoneNumberValid(phone){
+            const regex = /^5\d{7}$/;
+            return regex.test(phone);
         },
         filterLessons() {
             let filtered = this.lessons;
@@ -250,7 +277,6 @@ new Vue({
                 this.isDisabled = true
             }
         },
-
         updateCart(lesson){
 
             const itemIndex = this.cart.findIndex(item => item._id === lesson._id);
@@ -322,31 +348,49 @@ new Vue({
             this.filterLessons();
         },
         async checkout(){
-            const newOrder = {
-                userId : this.userId,
-                lessons : this.cart,
-                totalPrice: this.total
-            }
+                // Checking for name and phone number (Validation)
+              if(this.checkoutName === this.currUser.name && this.checkoutPhoneNumber === this.currUser.phone){
+                this.disableCheckout = true;
+                this.errorCheckoutName = false;
+                this.errorCheckoutPhoneNumber = false
 
-            // Using fetch to send POST request
-            const result = await post('/orders', newOrder);
-            // using fetch to send PUT request to update number of spaces in lessons collection
-            for(const lesson of this.cart){
-                const {spacesBooked, _id, ...restOflesson} = lesson;
-                console.log(restOflesson);
-                const resultPut = await put(`/lessons/${lesson._id}`, restOflesson)
-                console.log(resultPut);
-            }
-            console.log(result);
-            this.cart=[];
-            this.total = 0.00;
+                const newOrder = {
+                    userId : this.userId,
+                    lessons : this.cart,
+                    totalPrice: this.total
+                }
 
-            
-            if(result.orderId){
-                alert("Your purchase was successful, redirecting to Home page");
-                this.changeView('home');
-            }
+                // Using fetch to send POST request
+                const result = await post('/orders', newOrder);
+                // using fetch to send PUT request to update number of spaces in lessons collection
+                for(const lesson of this.cart){
+                    const {spacesBooked, _id, ...restOflesson} = lesson;
+                    console.log(restOflesson);
+                    // Using put route to update spaces in DB
+                    const resultPut = await put(`/lessons/${lesson._id}`, restOflesson)
+                    console.log(resultPut);
+                }
+                console.log(result);
+                this.cart=[];
+                this.total = 0.00;
 
+                
+                if(result.orderId){
+                    alert("Your purchase was successful, redirecting to Home page");
+                    this.changeView('home');
+                }
+
+            }else{
+                if(this.checkoutName !== this.currUser.name){
+                    this.errorCheckoutName = true
+                    this.disableCheckout = false;
+
+                }else if(this.checkoutPhoneNumber !== this.currUser.phone){
+                    this.errorCheckoutPhoneNumber = true
+                    this.disableCheckout = true;
+
+                }
+            }
                     
         },
         async fetchLessons() {

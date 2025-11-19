@@ -371,6 +371,9 @@ body {
     justify-content: center;
     gap: 0.5rem;
 }
+.checkout-btn:disabled{
+    cursor: not-allowed;
+}
 
 .checkout-btn:hover {
     transform: translateY(-2px);
@@ -456,6 +459,17 @@ body {
 .browse-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.checkout-input input{
+    background-color: #eee;
+    border: none;
+    margin: 8px 0;
+    padding: 10px 15px;
+    font-size: 13px;
+    border-radius: 8px;
+    width: 100%;
+    outline: none;
 }
 
 @media (max-width: 1024px) {
