@@ -20,7 +20,7 @@
             <div class="container" id="container" :class="{ 'active': isSignUp }">
                 <!-- Sign-up HTML -->
                 <div class="form-container sign-up">
-                    <form @submit.prevent="DummyFunction">
+                    <form @submit.prevent="formHandler">
                         <h1>Create Account</h1>
                         <span>Sign up as:</span>
                         
@@ -56,7 +56,7 @@
                 </div>
                 <!-- Sign-in HTML -->
                 <div class="form-container sign-in">
-                    <form @submit.prevent="DummyFunction">
+                    <form @submit.prevent="formHandler">
                         <h1>Sign In</h1>
                         <input type="email" placeholder="Email" v-model="loginEmail">
                         <input type="password" placeholder="Password" v-model="loginPassword">
@@ -96,8 +96,6 @@
                 <ul class="nav-links">
                     <li><button @click="changeView('home')"><ion-icon name="home" class="nav-icon"></ion-icon>Home</button></li>
                     <li><button @click="toggleCartAndHome('cart')" :disabled="isDisabled"><ion-icon name="cart" class="nav-icon"></ion-icon>My Cart<span class="cart-badge" v-if="cartCount > 0">{{ cartCount }}</span></button></li>
-                    <li><a @click="changeView('checkout')"><ion-icon name="card" class="nav-icon"></ion-icon>Checkout</a></li>
-                    <li><a @click="changeView('profile')"><ion-icon name="person" class="nav-icon"></ion-icon>Profile</a></li>
                     <li><button @click="changeView('courses')"><ion-icon name="library" class="nav-icon"></ion-icon>My Courses</button></li>
                 </ul>
                 <div class="search-bar" v-if="currentView === 'home'">
@@ -105,9 +103,9 @@
                         <ion-icon name="search" class="search-icon"></ion-icon>
                         <input 
                             type="text" 
-                            placeholder="Search lessons..." 
+                            placeholder="Search lessons by subject, location, price, or availability..." 
                             v-model="searchQuery"
-                            @input="filterLessons"
+                            @input="handleSearch"
                         >
                     </div>
                     <button>
@@ -147,7 +145,7 @@
                     <!-- Cart Items -->
                     <div class="cart-items">
                         <div class="cart-item" v-for="lesson in cart" :key="lesson._id">
-                            <div class="item-image" :style="{ backgroundImage: 'url(' + lesson.image + ')' }"></div>
+                            <div class="item-image" @error="handleImageError(lesson)" :style="{ backgroundImage: 'url(' + getImageUrl(lesson.image) + ')' }"></div>
                             <div class="item-details">
                                 <div class="item-header">
                                     <h3 class="item-title">{{ lesson.title }}</h3>
@@ -182,23 +180,8 @@
                                 </div>
 
                                 <div class="item-footer">
-                                    <div class="item-price">${{ lesson.price }}</div>
+                                    <div class="item-price">£{{ lesson.price }}</div>
                                      <div style="font-size: 1.2rem;">Spaces booked : {{ lesson.spacesBooked }}</div>
-                                        <button 
-                                            class="add-to-cart-btn" 
-                                            @click="wrapperIncCartPage(lesson)"
-                                            :disabled="checkSpaces(lesson)"
-                                        >
-                                        <ion-icon style="font-size: 1.2rem;" name="chevron-up-outline"></ion-icon>
-                                        </button>
-
-                                        <button 
-                                            class="add-to-cart-btn" 
-                                            @click="wrapperDecCartPage(lesson)"
-                                            :disabled="checkDecSpaces(lesson)"
-                                        >
-                                        <ion-icon style="font-size: 1.2rem;" name="chevron-down-outline"></ion-icon>
-                                        </button>
                                     <div class="item-rating">
                                         <span class="stars">★★★★★</span>
                                         <span>{{ lesson.rating }} ({{ lesson.reviews }})</span>
@@ -214,12 +197,12 @@
                         
                         <div class="summary-item subtotal" v-for="lesson in cart" :key="lesson._id">
                             <span> {{lesson.title}} </span>
-                            <span class="summary-price"> ${{lesson.price * lesson.spacesBooked}} </span>
+                            <span class="summary-price"> £{{lesson.price * lesson.spacesBooked}} </span>
                         </div>
 
                         <div class="summary-item total">
                             <span>Total</span>
-                            <span class="total-price">${{ total.toFixed(2) }}</span>
+                            <span class="total-price">£{{ total.toFixed(2) }}</span>
                         </div>
 
                         <div class="checkout-input">
@@ -244,19 +227,6 @@
             </div>
         </div>
 
-        <!-- Checkout page view -->
-        <div v-if="currentView == 'checkout'" class="placeholder-view">
-            <h2>{{ currentView.charAt(0).toUpperCase() + currentView.slice(1) }} Page</h2>
-            <p>This is a placeholder for the {{ currentView }} view.</p>
-            <button @click="changeView('home')">Back to Home</button>
-        </div>
-
-        <!-- Profile page view -->
-        <div v-if="currentView == 'profile'" class="placeholder-view">
-            <h2>{{ currentView.charAt(0).toUpperCase() + currentView.slice(1) }} Page</h2>
-            <p>This is a placeholder for the {{ currentView }} view.</p>
-            <button @click="changeView('home')">Back to Home</button>
-        </div>
 
         <!-- My courses page view -->
         <div v-if="currentView == 'courses'">
@@ -268,90 +238,85 @@
         <!-- HTML for main home page content -->
         <div class="main-container" v-if="currentView === 'home'">
             <!-- Sidebar -->
-            <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
-                <div class="sidebar-content">
-                    <div class="sidebar-header">
-                        <h3>Filters</h3>
-                    </div>
-                    
-                    <div class="filter-section">
-                        <h4>Subject</h4>
-                        <div class="filter-option" v-for="subject in subjects" :key="subject">
-                            <input 
-                                type="checkbox" 
-                                :id="'subject-' + subject"
-                                :value="subject"
-                                v-model="selectedSubjects"
-                                @change="filterLessons"
-                            >
-                            <label :for="'subject-' + subject">{{ subject }}</label>
-                        </div>
-                    </div>
-                    <!-- HTML for Filter section  -->
-                    <div class="filter-section">
-                        <h4>Location</h4>
-                        <div class="filter-option" v-for="location in locations" :key="location">
-                            <input 
-                                type="checkbox" 
-                                :id="'location-' + location"
-                                :value="location"
-                                v-model="selectedLocations"
-                                @change="filterLessons"
-                            >
-                            <label :for="'location-' + location">{{ location }}</label>
-                        </div>
-                    </div>
-
-                    <div class="filter-section">
-                        <h4>Price Range</h4>
-                        <div class="price-inputs">
-                            <input 
-                                type="number" 
-                                placeholder="Min" 
-                                v-model.number="priceMin"
-                                @input="filterLessons"
-                            >
-                            <input 
-                                type="number" 
-                                placeholder="Max" 
-                                v-model.number="priceMax"
-                                @input="filterLessons"
-                            >
-                        </div>
-                    </div>
-
-                    <div class="filter-section">
-                        <h4>Rating</h4>
-                        <div class="filter-option" v-for="rating in [5, 4, 3, 2, 1]" :key="rating">
-                            <input 
-                                type="checkbox" 
-                                :id="'rating-' + rating"
-                                :value="rating"
-                                v-model="selectedRatings"
-                                @change="filterLessons"
-                            >
-                            <label :for="'rating-' + rating">{{ rating }}+ Stars</label>
-                        </div>
-                    </div>
-
-                    <button class="clear-filters" @click="clearFilters">Clear All Filters</button>
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h3>Sort Options</h3>
                 </div>
-            </aside>
+                
+                <div class="filter-section">
+                        <h4>Sort By</h4>
+                        <div class="sort-option" v-for="option in sortOptions" :key="option.value">
+                            <input 
+                                type="radio" 
+                                :id="'sort-' + option.value"
+                                :value="option.value"
+                                v-model="sortBy"
+                                @change="sortLessons"
+                                name="sortBy"
+                            >
+                            <label :for="'sort-' + option.value">
+                                <ion-icon :name="option.icon"></ion-icon>
+                                {{ option.label }}
+                            </label>
+                        </div>
+                    </div>
 
+                    <div class="filter-section">
+                        <h4>Sort Order</h4>
+                        <div class="sort-option">
+                            <input 
+                                type="radio" 
+                                id="order-asc"
+                                value="asc"
+                                v-model="sortOrder"
+                                @change="sortLessons"
+                                name="sortOrder"
+                            >
+                            <label for="order-asc">
+                                <ion-icon name="arrow-up-outline"></ion-icon>
+                                Ascending
+                            </label>
+                        </div>
+                        <div class="sort-option">
+                            <input 
+                                type="radio" 
+                                id="order-desc"
+                                value="desc"
+                                v-model="sortOrder"
+                                @change="sortLessons"
+                                name="sortOrder"
+                            >
+                            <label for="order-desc">
+                                <ion-icon name="arrow-down-outline"></ion-icon>
+                                Descending
+                            </label>
+                        </div>
+                    </div>
+
+                    <button class="clear-filters" @click="resetSort">
+                        <ion-icon name="refresh-outline"></ion-icon>
+                        Reset Sort
+                    </button>
+            </aside>
+            <div v-if="error" class="error">{{ error }}</div>
             <!-- Lessons Grid -->
             <main class="lessons-container">
                 <div class="lessons-header">
                     <h1>Available Lessons</h1>
-                    <p class="results-count">{{ filteredLessons.length }} lessons available</p>
+                    <p class="results-count">{{ searchResults.length }} lessons available</p>
                 </div>
 
-                <div class="lessons-grid" v-if="filteredLessons.length > 0">
-                    <div class="lesson-card" v-for="lesson in filteredLessons" :key="lesson._id">
-                        <div class="lesson-image" :style="{ backgroundImage: 'url(' + lesson.image + ')' }"></div>
+                <div class="lessons-grid" v-if="searchResults.length > 0">
+                    <div class="lesson-card" v-for="lesson in searchResults" :key="lesson._id">
+                        <div class="lesson-image" @error="handleImageError(lesson)" :style="{ backgroundImage: 'url(' + getImageUrl(lesson.image) + ')' }"></div>
                         <div class="lesson-content">
                             <h3 class="lesson-title">{{ lesson.title }}</h3>
                             
                             <div class="lesson-details">
+                                <div class="detail-item">
+                                    <ion-icon name="book-outline" class="detail-icon"></ion-icon>
+                                    <span style="font-weight: 750;">{{ lesson.subject }}</span>
+                                </div>
                                 <div class="detail-item">
                                     <ion-icon name="person-outline" class="detail-icon"></ion-icon>
                                     <span>{{ lesson.tutor }}</span>
@@ -378,47 +343,33 @@
                                     <span class="rating-count">({{ lesson.reviews }} reviews)</span>
                                 </div>
                                 <div class="spaces-available" v-if="lesson.spaces <= 5">
-                                    Only {{ lesson.spaces }} spaces left!
+                                    {{ lesson.spaces == 0 ? 'Out of stock' : `Only ${lesson.spaces} spaces left!` }}
                                 </div>
                             </div>
                            
 
                             <div class="lesson-footer">
 
-                                <div class="lesson-price">${{ lesson.price }}</div>
+                                <div class="lesson-price">£{{ lesson.price }}</div>
                                  <div>Spaces booked : {{ lesson.spacesBooked }}</div>
-                                <button 
-                                    class="add-to-cart-btn" 
-                                    @click="incSpacesBooked(lesson)"
-                                    :disabled="checkSpaces(lesson) || isInCart(lesson._id)"
-                                >
-                                <ion-icon style="font-size: 1.2rem;" name="chevron-up-outline"></ion-icon>
-                                </button>
-
-                                 <button 
-                                    class="add-to-cart-btn" 
-                                    @click="decSpacesBooked(lesson)"
-                                    :disabled="checkDecSpaces(lesson) || isInCart(lesson._id)"
-                                >
-                                <ion-icon style="font-size: 1.2rem;" name="chevron-down-outline"></ion-icon>
-                                </button>
                                 <button 
                                     class="add-to-cart-btn"
                                     @click="addToCart(lesson)"
-                                    :disabled="isInCart(lesson._id)"
+                                    :disabled="lesson.spaces == 0"
+                                    
                                 >
-                                    {{ isInCart(lesson._id) ? 'In Cart' : 'Add to Cart' }}
+                                      Add to Cart
                                 </button>
-
-                                
                             </div>
                         </div>
                     </div>
                 </div>
-
+                <div v-else-if="loading" class="no-results">
+                    <h2>Loading lessons...</h2>
+                </div>
                 <div class="no-results" v-else>
                     <h2>No lessons found</h2>
-                    <p>Try adjusting your filters or search query</p>
+                    <p>Try adjusting your search query</p>
                 </div>
             </main>
         </div>

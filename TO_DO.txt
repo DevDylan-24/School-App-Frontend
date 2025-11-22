@@ -23,3 +23,7 @@ Book multiple spaces per order (Need to fix in backend)
 Increase the max size of the website to account for higher resolution
 
 Check when to load lessons for info to be accurate
+
+Add checkout validation animation to confirm order
+
+Add check if spaces are zero when loading courses (disable all button to add to cart if it is sold out) and change text to "Sold out"

@@ -23,37 +23,31 @@ new Vue({
         registerRole: 'student',
         loginEmail: '',
         loginPassword: '',
-        searchQuery: '',
-        selectedSubjects: [],
-        selectedLocations: [],
-        selectedRatings: [],
-        priceMin: null,
-        priceMax: null,
+        sortBy: 'subject',
+        sortOrder: 'asc',
+         sortOptions: [
+        { value: 'subject', label: 'Subject', icon: 'book-outline' },
+        { value: 'location', label: 'Location', icon: 'location-outline' },
+        { value: 'price', label: 'Price', icon: 'cash-outline' },
+        { value: 'spaces', label: 'Availability', icon: 'people-outline' }
+        ],
         cart: [],
-        sidebarCollapsed: false,
         lessons: [],
-        filteredLessons: [],
         total: 0.00,
         userId:'',
         isDisabled:true,
         currUser:null,
-        disableCheckout:true
+        disableCheckout:true,
+        searchQuery: '',
+        searchResults: [],
+        loading: true,
+        error: '',
+        searchTimeout: null,
+        defaultImage: 'default.jpg'
     },
     computed: {
-        subjects() {
-            return [...new Set(this.lessons.map(l => l.subject))];
-        },
-        locations() {
-            return [...new Set(this.lessons.map(l => l.location))];
-        },
         cartCount() {
             return this.cart.length;
-        },
-        subtotal() {
-            return this.cart.reduce((sum, item) => sum + (item.price * item.spacesBooked), 0);
-        },
-        total() {
-            return this.subtotal; 
         },
         isCheckoutValid(){
             return  this.checkoutName.trim() !== '' && this.checkoutPhoneNumber.trim() !== '';
@@ -61,9 +55,6 @@ new Vue({
     },
     methods: {
         changeView(view) {
-            if(view == 'home'){
-                this.fetchLessons();
-            }
             this.currentView = view;
         },
         toggleCartAndHome(){
@@ -76,8 +67,46 @@ new Vue({
         ToggleSignUp() {
             this.isSignUp = !this.isSignUp;
         },
-        toggleSidebar() {
-            this.sidebarCollapsed = !this.sidebarCollapsed;
+        sortLessons() {
+            let sorted = [...this.searchResults];
+            
+            sorted.sort((a, b) => {
+                let compareA, compareB;
+                
+                switch(this.sortBy) {
+                    case 'subject':
+                        compareA = a.subject.toLowerCase();
+                        compareB = b.subject.toLowerCase();
+                        break;
+                    case 'location':
+                        compareA = a.location.toLowerCase();
+                        compareB = b.location.toLowerCase();
+                        break;
+                    case 'price':
+                        compareA = a.price;
+                        compareB = b.price;
+                        break;
+                    case 'spaces':
+                        compareA = a.spaces;
+                        compareB = b.spaces;
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (this.sortOrder === 'asc') {
+                    return compareA > compareB ? 1 : compareA < compareB ? -1 : 0;
+                } else {
+                    return compareA < compareB ? 1 : compareA > compareB ? -1 : 0;
+                }
+            });
+        
+            this.searchResults = sorted;
+        },
+        resetSort() {
+                    this.sortBy = 'subject';
+                    this.sortOrder = 'asc';
+                    this.sortLessons();
         },
         removeColorClass(){
             document.getElementById('studentLabel').classList.remove('default-checked');
@@ -199,7 +228,7 @@ new Vue({
             }
 
         },
-        DummyFunction() {
+        formHandler() {
           return;
         },
         isPasswordValid(password) {
@@ -215,45 +244,6 @@ new Vue({
             const regex = /^5\d{7}$/;
             return regex.test(phone);
         },
-        filterLessons() {
-            let filtered = this.lessons;
-
-            if (this.searchQuery) {
-                const query = this.searchQuery.toLowerCase();
-                filtered = filtered.filter(lesson => 
-                    lesson.title.toLowerCase().includes(query) ||
-                    lesson.subject.toLowerCase().includes(query) ||
-                    lesson.tutor.toLowerCase().includes(query)
-                );
-            }
-
-            if (this.selectedSubjects.length > 0) {
-                filtered = filtered.filter(lesson => 
-                    this.selectedSubjects.includes(lesson.subject)
-                );
-            }
-
-            if (this.selectedLocations.length > 0) {
-                filtered = filtered.filter(lesson => 
-                    this.selectedLocations.includes(lesson.location)
-                );
-            }
-
-            if (this.priceMin !== null && this.priceMin !== '') {
-                filtered = filtered.filter(lesson => lesson.price >= this.priceMin);
-            }
-
-            if (this.priceMax !== null && this.priceMax !== '') {
-                filtered = filtered.filter(lesson => lesson.price <= this.priceMax);
-            }
-
-            if (this.selectedRatings.length > 0) {
-                const minRating = Math.min(...this.selectedRatings);
-                filtered = filtered.filter(lesson => lesson.rating >= minRating);
-            }
-
-            this.filteredLessons = filtered;
-        },
         calculateTotal(){
             const sum = this.cart.reduce((total, item) => {
                 return total + (item.price * item.spacesBooked);
@@ -261,13 +251,70 @@ new Vue({
 
             this.total = sum;
         },
+         // Search as you type with debouncing
+        handleSearch() {
+            console.log(this.searchQuery)
+            // Clear previous timeout
+            if (this.searchTimeout) {
+                clearTimeout(this.searchTimeout);
+            }
+            
+            // Set new timeout for debouncing (300ms delay)
+            this.searchTimeout = setTimeout(() => {
+                this.performSearch();
+            }, 300);
+        },
+        // Function ensures spaces booked for each lesson is consistent in both cart and search results
+        checkSpacesInSearchResult(){
+            if(this.searchResults.length > 0){
+                this.searchResults.forEach((lesson) => {
+                    if(this.isInCart(lesson._id)){
+                        const lessonInCart = this.cart.find(cart_lesson => cart_lesson._id == lesson._id)
+                        lesson.spacesBooked = lessonInCart.spacesBooked;
+                    }else{
+                        lesson.spacesBooked = 0;
+                    }
+                });
+            }
+        },
+        async performSearch() {
+            if (this.searchQuery.trim() === '') {
+                this.searchResults = [...this.lessons];
+                this.checkSpacesInSearchResult()
+                this.sortLessons();
+                return;
+            }
+
+            this.loading = true;
+            this.error = '';
+
+            try {
+                this.searchResults = await get(`/search?q=${this.searchQuery}`);
+                this.checkSpacesInSearchResult()
+                console.log(this.searchResults)
+            } catch (err) {
+                console.error('Search error:', err);
+                this.error = 'Failed to search lessons. Please try again.';
+                this.searchResults = [];
+            } finally {
+                this.loading = false;
+            }
+        },
         addToCart(lesson) {
             if (!this.isInCart(lesson._id)) {
                 if (lesson.spacesBooked == 0) {
                     lesson.spacesBooked++;
+                    this.$set(lesson, 'spaces', lesson.spaces - 1);
                 }
                 this.cart.push(lesson);
                 console.log(this.cart)
+            }else{
+                if (lesson.spaces > 0) {
+                    this.$set(lesson, 'spacesBooked', lesson.spacesBooked + 1);
+                    this.$set(lesson, 'spaces', lesson.spaces - 1);
+                }
+                console.log(this.cart)
+
             }
             this.calculateTotal()
             this.isDisabled = false;
@@ -277,75 +324,20 @@ new Vue({
                 this.isDisabled = true
             }
         },
-        updateCart(lesson){
-
-            const itemIndex = this.cart.findIndex(item => item._id === lesson._id);
-
-            if (itemIndex !== -1) {
-            this.$set(this.cart[itemIndex], 'spacesBooked', lesson.spacesBooked);
-            }
-
-            console.log(this.cart); 
-            this.calculateTotal()
-        },
         removeFromCart(lessonId){
-            this.cart = this.cart.filter(lesson => lesson._id != lessonId)
+            this.cart.forEach((lesson) => {
+                if(lesson._id == lessonId && lesson.spacesBooked > 0){
+                    lesson.spacesBooked--;
+                    lesson.spaces++;
+                }
+            });
+            this.cart = this.cart.filter(lesson => lesson.spacesBooked !== 0)
+            console.log(this.cart)
+            this.calculateTotal()
             this.isCartEmpty()
-        },
-        wrapperIncCartPage(lesson){
-            this.incSpacesBooked(lesson);
-            this.updateCart(lesson);
-
-        },
-        wrapperDecCartPage(lesson){
-            this.decSpacesBooked(lesson);
-            this.updateCart(lesson);
-
-
-        },
-        incSpacesBooked(lesson){
-
-            if (lesson.spaces > 0) {
-                this.$set(lesson, 'spacesBooked', lesson.spacesBooked + 1);
-                this.$set(lesson, 'spaces', lesson.spaces - 1);
-
-                return false;
-            }else{
-                return true;
-            }
-        },
-        decSpacesBooked(lesson){
-            if(!((lesson.spaces + 1) > (lesson.spaces + lesson.spacesBooked))){
-                this.$set(lesson, 'spacesBooked', lesson.spacesBooked - 1);
-                this.$set(lesson, 'spaces', lesson.spaces + 1);
-            }
-        },
-        checkDecSpaces(lesson){
-            if(lesson.spacesBooked == 0){
-                return true;
-            }else{
-                return false;
-            }
-
-        },  
-        checkSpaces(lesson){
-            if (lesson.spaces > 0) {
-                return false;
-            }else{
-                return true;
-            }
         },
         isInCart(lessonId) {
             return this.cart.some(item => item._id === lessonId);
-        },
-        clearFilters() {
-            this.searchQuery = '';
-            this.selectedSubjects = [];
-            this.selectedLocations = [];
-            this.selectedRatings = [];
-            this.priceMin = null;
-            this.priceMax = null;
-            this.filterLessons();
         },
         async checkout(){
                 // Checking for name and phone number (Validation)
@@ -377,6 +369,7 @@ new Vue({
                 
                 if(result.orderId){
                     alert("Your purchase was successful, redirecting to Home page");
+                    await this.fetchLessons()
                     this.changeView('home');
                 }
 
@@ -393,6 +386,20 @@ new Vue({
             }
                     
         },
+        getImageUrl(imageName) {
+            // Using the direct static file to serve images
+            return `http://localhost:3000/images/lessons/${imageName}`;
+            
+        },
+        
+        handleImageError(lesson) {
+            console.log(`Image failed to load: ${lesson.image}`);
+            // Update the lesson's image to use default
+            lesson.image = this.defaultImage;
+            
+            // Force Vue to update the style
+            this.$forceUpdate();
+        },
         async fetchLessons() {
             try {
                 // Fetch lessons from backend API
@@ -400,8 +407,9 @@ new Vue({
                 this.lessons.forEach(lesson => {
                    lesson.spacesBooked = 0; 
                 });
-                this.filterLessons();
-                console.log('Fetched lessons:', this.lessons);
+
+                this.searchResults = [...this.lessons]
+                console.log('Fetched lessons:', this.searchResults);
 
             } catch (error) {
                 console.error('Error fetching lessons:', error);
@@ -411,8 +419,9 @@ new Vue({
     },
     async created() {
         await this.fetchLessons();
+        this.sortLessons()
     },
     mounted() {
-        this.filteredLessons = this.lessons;
+        this.searchResults = this.lessons;
     }
 })
