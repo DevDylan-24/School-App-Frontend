@@ -4,6 +4,7 @@ Do login & signup page for both student and tutor               -> Done
 
 Switch pages using navbar links                                 -> Done
 Connect to backend using fetch                                  -> In Progress
+
 Do cart page
     -Remove item from cart
 Make add to cart button grayed out if no spaces
@@ -15,3 +16,14 @@ Do profile page
 Add ascending and descending order sorting for attributes (Check module handbook)
 Error handling in frontend based on the response status from backend        -> In Progress
 (e.g User already exists in DB, etc..)
+
+Book multiple spaces per order          -> Done
+Book multiple spaces per order (Need to fix in backend)
+
+Increase the max size of the website to account for higher resolution
+
+Check when to load lessons for info to be accurate
+
+Add checkout validation animation to confirm order
+
+Add check if spaces are zero when loading courses (disable all button to add to cart if it is sold out) and change text to "Sold out"

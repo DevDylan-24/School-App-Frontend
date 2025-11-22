@@ -1,253 +1,151 @@
+import {get, post, put, del, upload, isAuthenticated, getToken, setToken, removeToken} from './api.js';
+
 new Vue({
    el: '#app',
     data: {
-        currentView: 'login',
+        currentView: 'login', // Possible views: 'login', 'checkout', 'home', 'myCourses', 'cart'
         isSignUp: false,
         errorName: false,
         errorEmail: false,
         errorPassword: false,
+        errorPhoneNumber: false,
+        registerError:false,
+        loginError: false,
+        errorCheckoutName: false,
+        errorCheckoutPhoneNumber: false,
+        errorLoginMessage:"",
         registerName: '',
         registerEmail: '',
         registerPassword: '',
+        registerPhoneNumber: '',
+        checkoutName:'',
+        checkoutPhoneNumber:'',
         registerRole: 'student',
         loginEmail: '',
         loginPassword: '',
-        searchQuery: '',
-        selectedSubjects: [],
-        selectedLocations: [],
-        selectedRatings: [],
-        priceMin: null,
-        priceMax: null,
-        cart: [],
-        sidebarCollapsed: false,
-        lessons: [
-            // Dummy data for lessons
-            {
-                id: 1,
-                title: 'Advanced Mathematics',
-                subject: 'Mathematics',
-                tutor: 'Dr. Sarah Johnson',
-                location: 'North Campus',
-                schedule: 'Mon & Wed, 4:00 PM',
-                duration: '1.5 hours',
-                price: 45,
-                rating: 4.9,
-                reviews: 127,
-                spaces: 3,
-                image: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=400&h=300&fit=crop'
-            },
-            {
-                id: 2,
-                title: 'English Literature',
-                subject: 'English',
-                tutor: 'Prof. Michael Chen',
-                location: 'South Campus',
-                schedule: 'Tue & Thu, 3:30 PM',
-                duration: '2 hours',
-                price: 40,
-                rating: 4.8,
-                reviews: 93,
-                spaces: 8,
-                image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&h=300&fit=crop'
-            },
-            {
-                id: 3,
-                title: 'Physics & Lab',
-                subject: 'Science',
-                tutor: 'Dr. Emily Rodriguez',
-                location: 'Science Block',
-                schedule: 'Wed & Fri, 4:30 PM',
-                duration: '2 hours',
-                price: 50,
-                rating: 4.7,
-                reviews: 81,
-                spaces: 5,
-                image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=400&h=300&fit=crop'
-            },
-            {
-                id: 4,
-                title: 'Spanish Conversation',
-                subject: 'Languages',
-                tutor: 'Maria Garcia',
-                location: 'Language Lab',
-                schedule: 'Mon & Thu, 3:00 PM',
-                duration: '1 hour',
-                price: 35,
-                rating: 4.9,
-                reviews: 156,
-                spaces: 12,
-                image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop'
-            },
-            {
-                id: 5,
-                title: 'Computer Programming',
-                subject: 'Technology',
-                tutor: 'James Wilson',
-                location: 'Computer Lab',
-                schedule: 'Tue & Fri, 4:00 PM',
-                duration: '2 hours',
-                price: 55,
-                rating: 4.8,
-                reviews: 104,
-                spaces: 2,
-                image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=300&fit=crop'
-            },
-            {
-                id: 6,
-                title: 'Art & Design',
-                subject: 'Arts',
-                tutor: 'Lisa Anderson',
-                location: 'Art Studio',
-                schedule: 'Wed, 3:30 PM',
-                duration: '2.5 hours',
-                price: 42,
-                rating: 4.9,
-                reviews: 89,
-                spaces: 6,
-                image: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=400&h=300&fit=crop'
-            },
-            {
-                id: 7,
-                title: 'Chemistry Fundamentals',
-                subject: 'Science',
-                tutor: 'Dr. Robert Taylor',
-                location: 'Science Block',
-                schedule: 'Mon & Wed, 5:00 PM',
-                duration: '1.5 hours',
-                price: 48,
-                rating: 4.6,
-                reviews: 72,
-                spaces: 7,
-                image: 'https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?w=400&h=300&fit=crop'
-            },
-            {
-                id: 8,
-                title: 'Music Theory',
-                subject: 'Arts',
-                tutor: 'David Martinez',
-                location: 'Music Room',
-                schedule: 'Tue & Thu, 4:30 PM',
-                duration: '1 hour',
-                price: 38,
-                rating: 4.7,
-                reviews: 65,
-                spaces: 10,
-                image: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400&h=300&fit=crop'
-            },
-            {
-                id: 9,
-                title: 'French Language',
-                subject: 'Languages',
-                tutor: 'Sophie Laurent',
-                location: 'Language Lab',
-                schedule: 'Wed & Fri, 3:00 PM',
-                duration: '1.5 hours',
-                price: 40,
-                rating: 4.8,
-                reviews: 98,
-                spaces: 4,
-                image: 'https://images.unsplash.com/photo-1509023464722-18d996393ca8?w=400&h=300&fit=crop'
-            },
-            {
-                id: 10,
-                title: 'Biology & Life Sciences',
-                subject: 'Science',
-                tutor: 'Dr. Amanda Lee',
-                location: 'Bio Lab',
-                schedule: 'Mon & Thu, 4:00 PM',
-                duration: '2 hours',
-                price: 46,
-                rating: 4.9,
-                reviews: 112,
-                spaces: 8,
-                image: 'https://images.unsplash.com/photo-1530213786676-41ad9f7736f6?w=400&h=300&fit=crop'
-            },
-            {
-                id: 11,
-                title: 'Creative Writing',
-                subject: 'English',
-                tutor: 'Rebecca Stone',
-                location: 'South Campus',
-                schedule: 'Tue, 3:30 PM',
-                duration: '2 hours',
-                price: 37,
-                rating: 4.7,
-                reviews: 76,
-                spaces: 15,
-                image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&h=300&fit=crop'
-            },
-            {
-                id: 12,
-                title: 'Web Development',
-                subject: 'Technology',
-                tutor: 'Alex Kumar',
-                location: 'Computer Lab',
-                schedule: 'Wed & Fri, 5:00 PM',
-                duration: '2 hours',
-                price: 52,
-                rating: 4.8,
-                reviews: 91,
-                spaces: 6,
-                image: 'https://images.unsplash.com/photo-1547658719-da2b51169166?w=400&h=300&fit=crop'
-            }
+        sortBy: 'subject',
+        sortOrder: 'asc',
+         sortOptions: [
+        { value: 'subject', label: 'Subject', icon: 'book-outline' },
+        { value: 'location', label: 'Location', icon: 'location-outline' },
+        { value: 'price', label: 'Price', icon: 'cash-outline' },
+        { value: 'spaces', label: 'Availability', icon: 'people-outline' }
         ],
-        filteredLessons: []
+        cart: [],
+        lessons: [],
+        total: 0.00,
+        userId:'',
+        isDisabled:true,
+        currUser:null,
+        disableCheckout:true,
+        searchQuery: '',
+        searchResults: [],
+        loading: true,
+        error: '',
+        searchTimeout: null,
+        defaultImage: 'default.jpg'
     },
     computed: {
-        subjects() {
-            return [...new Set(this.lessons.map(l => l.subject))];
-        },
-        locations() {
-            return [...new Set(this.lessons.map(l => l.location))];
-        },
         cartCount() {
             return this.cart.length;
+        },
+        isCheckoutValid(){
+            return  this.checkoutName.trim() !== '' && this.checkoutPhoneNumber.trim() !== '';
         }
     },
     methods: {
         changeView(view) {
             this.currentView = view;
         },
+        toggleCartAndHome(){
+            if(this.currentView == 'home'){
+                this.changeView('cart');
+            }else{
+                this.changeView('home')
+            }
+        },
         ToggleSignUp() {
             this.isSignUp = !this.isSignUp;
         },
-        toggleSidebar() {
-            this.sidebarCollapsed = !this.sidebarCollapsed;
+        sortLessons() {
+            let sorted = [...this.searchResults];
+            
+            sorted.sort((a, b) => {
+                let compareA, compareB;
+                
+                switch(this.sortBy) {
+                    case 'subject':
+                        compareA = a.subject.toLowerCase();
+                        compareB = b.subject.toLowerCase();
+                        break;
+                    case 'location':
+                        compareA = a.location.toLowerCase();
+                        compareB = b.location.toLowerCase();
+                        break;
+                    case 'price':
+                        compareA = a.price;
+                        compareB = b.price;
+                        break;
+                    case 'spaces':
+                        compareA = a.spaces;
+                        compareB = b.spaces;
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (this.sortOrder === 'asc') {
+                    return compareA > compareB ? 1 : compareA < compareB ? -1 : 0;
+                } else {
+                    return compareA < compareB ? 1 : compareA > compareB ? -1 : 0;
+                }
+            });
+        
+            this.searchResults = sorted;
+        },
+        resetSort() {
+                    this.sortBy = 'subject';
+                    this.sortOrder = 'asc';
+                    this.sortLessons();
         },
         removeColorClass(){
             document.getElementById('studentLabel').classList.remove('default-checked');
         },
         async SignUp() {
             // Check if name, email and password are valid
-            this.errorName = this.registerName.trim() === '';
+            this.errorName = !this.isNameValid(this.registerName.trim());
             this.errorEmail = !this.registerEmail.includes('@');
             this.errorPassword = !this.isPasswordValid(this.registerPassword);
+            this.errorPhoneNumber = !this.isPhoneNumberValid(this.registerPhoneNumber)
 
-            if (this.errorName || this.errorEmail || this.errorPassword) {
+            this.registerError = false;
+            if (this.errorName || this.errorEmail || this.errorPassword || this.errorPhoneNumber) {
                 return;
             }else{
                 // If no errors, proceed with registration
                 // Send register data to backend 
                 try {
-                    let url = 'http://localhost:3000/api/register';
 
                     const data = {
                         name: this.registerName,
                         email: this.registerEmail,
                         password: this.registerPassword,
+                        phone: this.registerPhoneNumber,
                         role: this.registerRole
                     };
                     // Using fetch to send POST request
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(data)
-                    });
+                    const result = await post('/users/register', data);
 
-                    const result = await response.json();
                     // Add error handling based on response status
+                    if(result.status && (result.status !== 200 || result.status !== 201)){
+                        console.log('Registration failed:', result.message);
+                        this.registerError = true;
+                        
+                        return;
+                    }else{
+                        console.log('Registration successful, new User:', result.message);
+                    }
+
                     console.log(result);
 
                     alert('Registration successful!');
@@ -257,9 +155,11 @@ new Vue({
                     this.errorName = false;
                     this.errorEmail = false;
                     this.errorPassword = false;
+                    this.errorPhoneNumber = false;
                     this.registerName = '';
                     this.registerEmail = '';
                     this.registerPassword = '';
+                    this.registerPhoneNumber = '';
                     this.registerRole = 'student';
 
                     console.log('Registered user:', data);
@@ -276,31 +176,42 @@ new Vue({
             this.errorEmail = !this.loginEmail.includes('@');
             this.errorPassword = !this.isPasswordValid(this.loginPassword);
 
+            this.loginError = false;
+            this.errorLoginMessage = "";
+
             if (this.errorName || this.errorEmail || this.errorPassword) {
                 return;
             }else{
                 // If no errors, proceed with login
                 try {
-                    let url = 'http://localhost:3000/api/login';
 
                     const data = {  
                         email: this.loginEmail,
                         password: this.loginPassword
                     };
                     // Using fetch to send POST request
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(data)
-                    });
-                    const result = await response.json();
+                    const result = await post('/users/login', data);
+                    
                     // Add error handling based on response status
+                    if(result.status && (result.status !== 200 || result.status !== 201)){
+                        console.log('Login failed:', result.message);
+                        this.loginError = true;
+                        this.errorLoginMessage = result.message;
+
+                        return;
+                    }else{
+                        console.log('Login successful, token:', result.token);
+                        setToken(result.token);
+                    }
                     
                     console.log(result);
-                    alert('Login successful!');
-                    console.log('Current login user:', data);
+                    // Assign current userId
+                    this.userId = result._id;
+
+                    const response = await get(`/users/${this.userId}`)
+                    this.currUser = response.user;
+                    console.log('Current login user:', this.currUser);
+
 
                     // Changing back the form data to default
                     this.errorEmail = false;
@@ -312,12 +223,12 @@ new Vue({
 
                 } catch (error) {
                     console.error('Error during login:', error);
-                    alert('An error occurred during login. Please try again later.');
+                    alert('An error occurred during login. ' + error.message);
                 }
             }
 
         },
-        DummyFunction() {
+        formHandler() {
           return;
         },
         isPasswordValid(password) {
@@ -325,64 +236,192 @@ new Vue({
             const regex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
             return regex.test(password);
         },
-        filterLessons() {
-            let filtered = this.lessons;
+        isNameValid(name){
+            const regex = /^[A-Za-z]*$/;
+            return regex.test(name);
+        },
+        isPhoneNumberValid(phone){
+            const regex = /^5\d{7}$/;
+            return regex.test(phone);
+        },
+        calculateTotal(){
+            const sum = this.cart.reduce((total, item) => {
+                return total + (item.price * item.spacesBooked);
+            }, 0);
 
-            if (this.searchQuery) {
-                const query = this.searchQuery.toLowerCase();
-                filtered = filtered.filter(lesson => 
-                    lesson.title.toLowerCase().includes(query) ||
-                    lesson.subject.toLowerCase().includes(query) ||
-                    lesson.tutor.toLowerCase().includes(query)
-                );
+            this.total = sum;
+        },
+         // Search as you type with debouncing
+        handleSearch() {
+            console.log(this.searchQuery)
+            // Clear previous timeout
+            if (this.searchTimeout) {
+                clearTimeout(this.searchTimeout);
+            }
+            
+            // Set new timeout for debouncing (300ms delay)
+            this.searchTimeout = setTimeout(() => {
+                this.performSearch();
+            }, 300);
+        },
+        // Function ensures spaces booked for each lesson is consistent in both cart and search results
+        checkSpacesInSearchResult(){
+            if(this.searchResults.length > 0){
+                this.searchResults.forEach((lesson) => {
+                    if(this.isInCart(lesson._id)){
+                        const lessonInCart = this.cart.find(cart_lesson => cart_lesson._id == lesson._id)
+                        lesson.spacesBooked = lessonInCart.spacesBooked;
+                    }else{
+                        lesson.spacesBooked = 0;
+                    }
+                });
+            }
+        },
+        async performSearch() {
+            if (this.searchQuery.trim() === '') {
+                this.searchResults = [...this.lessons];
+                this.checkSpacesInSearchResult()
+                this.sortLessons();
+                return;
             }
 
-            if (this.selectedSubjects.length > 0) {
-                filtered = filtered.filter(lesson => 
-                    this.selectedSubjects.includes(lesson.subject)
-                );
-            }
+            this.loading = true;
+            this.error = '';
 
-            if (this.selectedLocations.length > 0) {
-                filtered = filtered.filter(lesson => 
-                    this.selectedLocations.includes(lesson.location)
-                );
+            try {
+                this.searchResults = await get(`/search?q=${this.searchQuery}`);
+                this.checkSpacesInSearchResult()
+                console.log(this.searchResults)
+            } catch (err) {
+                console.error('Search error:', err);
+                this.error = 'Failed to search lessons. Please try again.';
+                this.searchResults = [];
+            } finally {
+                this.loading = false;
             }
-
-            if (this.priceMin !== null && this.priceMin !== '') {
-                filtered = filtered.filter(lesson => lesson.price >= this.priceMin);
-            }
-
-            if (this.priceMax !== null && this.priceMax !== '') {
-                filtered = filtered.filter(lesson => lesson.price <= this.priceMax);
-            }
-
-            if (this.selectedRatings.length > 0) {
-                const minRating = Math.min(...this.selectedRatings);
-                filtered = filtered.filter(lesson => lesson.rating >= minRating);
-            }
-
-            this.filteredLessons = filtered;
         },
         addToCart(lesson) {
-            if (!this.isInCart(lesson.id)) {
+            if (!this.isInCart(lesson._id)) {
+                if (lesson.spacesBooked == 0) {
+                    lesson.spacesBooked++;
+                    this.$set(lesson, 'spaces', lesson.spaces - 1);
+                }
                 this.cart.push(lesson);
+                console.log(this.cart)
+            }else{
+                if (lesson.spaces > 0) {
+                    this.$set(lesson, 'spacesBooked', lesson.spacesBooked + 1);
+                    this.$set(lesson, 'spaces', lesson.spaces - 1);
+                }
+                console.log(this.cart)
+
+            }
+            this.calculateTotal()
+            this.isDisabled = false;
+        },
+        isCartEmpty(){
+            if (this.cart.length == 0){
+                this.isDisabled = true
             }
         },
-        isInCart(lessonId) {
-            return this.cart.some(item => item.id === lessonId);
+        removeFromCart(lessonId){
+            this.cart.forEach((lesson) => {
+                if(lesson._id == lessonId && lesson.spacesBooked > 0){
+                    lesson.spacesBooked--;
+                    lesson.spaces++;
+                }
+            });
+            this.cart = this.cart.filter(lesson => lesson.spacesBooked !== 0)
+            console.log(this.cart)
+            this.calculateTotal()
+            this.isCartEmpty()
         },
-        clearFilters() {
-            this.searchQuery = '';
-            this.selectedSubjects = [];
-            this.selectedLocations = [];
-            this.selectedRatings = [];
-            this.priceMin = null;
-            this.priceMax = null;
-            this.filterLessons();
+        isInCart(lessonId) {
+            return this.cart.some(item => item._id === lessonId);
+        },
+        async checkout(){
+                // Checking for name and phone number (Validation)
+              if(this.checkoutName === this.currUser.name && this.checkoutPhoneNumber === this.currUser.phone){
+                this.disableCheckout = true;
+                this.errorCheckoutName = false;
+                this.errorCheckoutPhoneNumber = false
+
+                const newOrder = {
+                    userId : this.userId,
+                    lessons : this.cart,
+                    totalPrice: this.total
+                }
+
+                // Using fetch to send POST request
+                const result = await post('/orders', newOrder);
+                // using fetch to send PUT request to update number of spaces in lessons collection
+                for(const lesson of this.cart){
+                    const {spacesBooked, _id, ...restOflesson} = lesson;
+                    console.log(restOflesson);
+                    // Using put route to update spaces in DB
+                    const resultPut = await put(`/lessons/${lesson._id}`, restOflesson)
+                    console.log(resultPut);
+                }
+                console.log(result);
+                this.cart=[];
+                this.total = 0.00;
+
+                
+                if(result.orderId){
+                    alert("Your purchase was successful, redirecting to Home page");
+                    await this.fetchLessons()
+                    this.changeView('home');
+                }
+
+            }else{
+                if(this.checkoutName !== this.currUser.name){
+                    this.errorCheckoutName = true
+                    this.disableCheckout = false;
+
+                }else if(this.checkoutPhoneNumber !== this.currUser.phone){
+                    this.errorCheckoutPhoneNumber = true
+                    this.disableCheckout = true;
+
+                }
+            }
+                    
+        },
+        getImageUrl(imageName) {
+            // Using the direct static file to serve images
+            return `http://localhost:3000/images/lessons/${imageName}`;
+            
+        },
+        
+        handleImageError(lesson) {
+            console.log(`Image failed to load: ${lesson.image}`);
+            // Update the lesson's image to use default
+            lesson.image = this.defaultImage;
+            
+            // Force Vue to update the style
+            this.$forceUpdate();
+        },
+        async fetchLessons() {
+            try {
+                // Fetch lessons from backend API
+                this.lessons = await get('/lessons')
+                this.lessons.forEach(lesson => {
+                   lesson.spacesBooked = 0; 
+                });
+
+                this.searchResults = [...this.lessons]
+                console.log('Fetched lessons:', this.searchResults);
+
+            } catch (error) {
+                console.error('Error fetching lessons:', error);
+            }
+
         }
     },
+    async created() {
+        await this.fetchLessons();
+        this.sortLessons()
+    },
     mounted() {
-        this.filteredLessons = this.lessons;
+        this.searchResults = this.lessons;
     }
 })
