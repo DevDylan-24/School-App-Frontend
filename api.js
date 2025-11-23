@@ -1,6 +1,6 @@
 // api.js - API helper with JWT authentication
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'https://school-app-backend-zjnz.onrender.com/api';
 
 
 // Generic request function that automatically adds JWT token to headers

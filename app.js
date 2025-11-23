@@ -37,13 +37,18 @@ new Vue({
         userId:'',
         isDisabled:true,
         currUser:null,
-        disableCheckout:true,
         searchQuery: '',
         searchResults: [],
         loading: true,
         error: '',
         searchTimeout: null,
-        defaultImage: 'default.jpg'
+        defaultImage: 'default.jpg',
+        checkoutLoading: false,
+        showPopup: false,
+        checkoutLoading: false,
+        checkoutAnimation: false,
+        showSuccessMessage: false,
+        progress: 0
     },
     computed: {
         cartCount() {
@@ -324,6 +329,76 @@ new Vue({
                 this.isDisabled = true
             }
         },
+        checkoutAnimationPopup() {
+            // Reset states
+            this.showPopup = true;
+            this.checkoutLoading = true;
+            this.checkoutAnimation = false;
+            this.showSuccessMessage = false;
+            this.progress = 0;
+            
+            // Clear any existing interval
+            if (this.progressInterval) {
+                clearInterval(this.progressInterval);
+            }
+            
+            const totalDuration = 27000; 
+            // Update every 100ms for smooth progress
+            const updateInterval = 100; 
+            const increments = totalDuration / updateInterval;
+            const incrementValue = 100 / increments;
+
+            // Simulate progress
+            this.progressInterval = setInterval(() => {
+                this.progress += incrementValue;
+                if (this.progress >= 100) {
+                    clearInterval(this.progressInterval);
+                    this.progress = 100;
+                }
+            }, updateInterval);
+            
+            // First animation (loading)
+            setTimeout(() => {
+                this.checkoutLoading = false;
+                
+
+                    this.checkoutAnimation = true;
+                    
+                    // Show success message after a short delay
+                    setTimeout(() => {
+                        this.showSuccessMessage = true;
+                    }, 500);
+
+                
+            }, 24000); // Loading animation duration
+            
+            // Close popup after completion
+            setTimeout(() => {
+                if (this.progressInterval) {
+                    clearInterval(this.progressInterval);
+                }
+                this.progress = 100;
+                
+                setTimeout(() => {
+                    this.closePopup();
+                    this.changeView('home');
+                }, 1000);
+                
+            }, totalDuration); // Total animation duration
+        },
+        closePopup() {
+            this.showPopup = false;
+            this.checkoutLoading = false;
+            this.checkoutAnimation = false;
+            this.showSuccessMessage = false;
+            this.progress = 0;
+
+            // Clear the progress interval
+            if (this.progressInterval) {
+                clearInterval(this.progressInterval);
+                this.progressInterval = null;
+            }
+        },
         removeFromCart(lessonId){
             this.cart.forEach((lesson) => {
                 if(lesson._id == lessonId && lesson.spacesBooked > 0){
@@ -342,7 +417,6 @@ new Vue({
         async checkout(){
                 // Checking for name and phone number (Validation)
               if(this.checkoutName === this.currUser.name && this.checkoutPhoneNumber === this.currUser.phone){
-                this.disableCheckout = true;
                 this.errorCheckoutName = false;
                 this.errorCheckoutPhoneNumber = false
 
@@ -351,6 +425,8 @@ new Vue({
                     lessons : this.cart,
                     totalPrice: this.total
                 }
+                // Display popup animation
+                this.checkoutAnimationPopup()
 
                 // Using fetch to send POST request
                 const result = await post('/orders', newOrder);
@@ -368,19 +444,16 @@ new Vue({
 
                 
                 if(result.orderId){
-                    alert("Your purchase was successful, redirecting to Home page");
+
                     await this.fetchLessons()
-                    this.changeView('home');
                 }
 
             }else{
                 if(this.checkoutName !== this.currUser.name){
                     this.errorCheckoutName = true
-                    this.disableCheckout = false;
 
                 }else if(this.checkoutPhoneNumber !== this.currUser.phone){
                     this.errorCheckoutPhoneNumber = true
-                    this.disableCheckout = true;
 
                 }
             }
@@ -388,7 +461,7 @@ new Vue({
         },
         getImageUrl(imageName) {
             // Using the direct static file to serve images
-            return `http://localhost:3000/images/lessons/${imageName}`;
+            return `https://school-app-backend-zjnz.onrender.com/images/lessons/${imageName}`;
             
         },
         

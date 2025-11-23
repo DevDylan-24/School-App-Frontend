@@ -7,6 +7,11 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script nomodule src="https://cdnjs.cloudflare.com/ajax/libs/ionicons/7.1.0/ionicons/ionicons.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.7.1/dist/dotlottie-wc.js" type="module"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <title>School App</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="login.css">
@@ -96,7 +101,7 @@
                 <ul class="nav-links">
                     <li><button @click="changeView('home')"><ion-icon name="home" class="nav-icon"></ion-icon>Home</button></li>
                     <li><button @click="toggleCartAndHome('cart')" :disabled="isDisabled"><ion-icon name="cart" class="nav-icon"></ion-icon>My Cart<span class="cart-badge" v-if="cartCount > 0">{{ cartCount }}</span></button></li>
-                    <li><button @click="changeView('courses')"><ion-icon name="library" class="nav-icon"></ion-icon>My Courses</button></li>
+
                 </ul>
                 <div class="search-bar" v-if="currentView === 'home'">
                     <div class="search-input-wrapper">
@@ -229,12 +234,37 @@
 
 
         <!-- My courses page view -->
-        <div v-if="currentView == 'courses'">
+        <div v-if="currentView == 'courses'" >
             <h2>{{ currentView.charAt(0).toUpperCase() + currentView.slice(1) }} Page</h2>
             <p>This is a placeholder for the {{ currentView }} view.</p>
             <button @click="changeView('home')">Back to Home</button>
         </div>
 
+        <!-- Animation Popup -->
+        <div class="popup-overlay" :class="{ active: showPopup }" v-if="checkoutLoading || checkoutAnimation">
+            <div class="animation-container">
+                
+                <div class="animation-content">
+                    <div class="checkoutLoading" :class="{ active: checkoutLoading }" v-if="checkoutLoading">
+                        <dotlottie-wc src="https://lottie.host/3fbfec97-a571-4866-baec-8ad84d707d4f/nHA4pdbYaA.lottie" speed="1" style="width: 400px; height: 400px" mode="forward" loop autoplay></dotlottie-wc>
+                        <p>Processing your payment...</p>
+                    </div>
+                    
+                    <div class="checkoutAnimation" :class="{ active: checkoutAnimation }" v-if="checkoutAnimation">
+                        <dotlottie-wc src="https://lottie.host/5a3d0626-1e2f-476e-a366-7dccb14ae8ea/uVfEhpls3M.lottie" speed="1" style="width: 400px; height: 400px" mode="forward" autoplay></dotlottie-wc>
+
+                        <p class="success-message" :class="{ active: showSuccessMessage }">
+                            Your purchase was successful, redirecting to home page
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress" :style="{ width: progress + '%' }"></div>
+                </div>
+            </div>
+        </div>
+       
         <!-- HTML for main home page content -->
         <div class="main-container" v-if="currentView === 'home'">
             <!-- Sidebar -->

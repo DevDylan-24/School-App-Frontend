@@ -533,3 +533,99 @@ body {
     font-size: 14px;
     margin-top: 10px;
 }
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.popup-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.animation-container {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    max-height: 650px;
+    width: 60%;
+    position: relative;
+    overflow: hidden;
+    transform: scale(0.7);
+    transition: transform 0.4s ease;
+}
+
+.popup-overlay.active .animation-container {
+    transform: scale(1);
+}
+
+.checkoutAnimation, .checkoutLoading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s ease;
+}
+
+.checkoutAnimation {
+    opacity: 0;
+}
+
+.checkoutLoading {
+    opacity: 0;
+}
+
+.checkoutAnimation.active, .checkoutLoading.active {
+    opacity: 1;
+}
+
+.success-message {
+    margin-top: 20px;
+    font-size: 1.35rem;
+    color: #27ae60;
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease 0.5s, transform 0.5s ease 0.5s;
+}
+
+.success-message.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.progress-bar {
+    height: 4px;
+    background: #ecf0f1;
+    border-radius: 2px;
+    margin-top: 20px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background: #3498db;
+    width: 0%;
+    transition: width 0.1s linear;
+}
+.checkoutLoading p{
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+}
