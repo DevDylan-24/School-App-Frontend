@@ -422,6 +422,8 @@ new Vue({
 
                 const newOrder = {
                     userId : this.userId,
+                    name: this.checkoutName,
+                    phone: this.checkoutPhoneNumber,
                     lessons : this.cart,
                     totalPrice: this.total
                 }
