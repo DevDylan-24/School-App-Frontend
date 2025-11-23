@@ -342,7 +342,7 @@ new Vue({
                 clearInterval(this.progressInterval);
             }
             
-            const totalDuration = 27000; 
+            const totalDuration = 11000; 
             // Update every 100ms for smooth progress
             const updateInterval = 100; 
             const increments = totalDuration / updateInterval;
@@ -370,7 +370,7 @@ new Vue({
                     }, 500);
 
                 
-            }, 24000); // Loading animation duration
+            }, 7000); // Loading animation duration
             
             // Close popup after completion
             setTimeout(() => {
@@ -430,25 +430,36 @@ new Vue({
                 // Display popup animation
                 this.checkoutAnimationPopup()
 
-                // Using fetch to send POST request
-                const result = await post('/orders', newOrder);
-                // using fetch to send PUT request to update number of spaces in lessons collection
-                for(const lesson of this.cart){
-                    const {spacesBooked, _id, ...restOflesson} = lesson;
-                    console.log(restOflesson);
-                    // Using put route to update spaces in DB
-                    const resultPut = await put(`/lessons/${lesson._id}`, restOflesson)
-                    console.log(resultPut);
-                }
-                console.log(result);
-                this.cart=[];
+            try {
+
+                // Using POST for creating order and PUT to update spaces in lessons DB
+                // Using Promise.all() for parallel computation of requests
+                const [orderResult, batchUpdateResult] = await Promise.all([
+                    post('/orders', newOrder),
+                    put('/lessons/batch-update', {
+                        lessons: this.cart.map(lesson => {
+                            const { spacesBooked, _id, ...restOflesson } = lesson;
+                            return { _id, ...restOflesson };
+                        })
+                    })
+                ]);
+
+                console.log('Results:', { orderResult, batchUpdateResult });
+
+                //  Clear cart and reset total
+                this.cart = [];
                 this.total = 0.00;
 
-                
-                if(result.orderId){
-
-                    await this.fetchLessons()
+                //  Fetch updated lessons
+                if(orderResult.orderId){
+                    await this.fetchLessons();
+                }else{
+                    console.error("Failed to fetch lessons from Backend")
                 }
+
+            } catch (error) {
+                console.error('Checkout failed:', error);
+            }
 
             }else{
                 if(this.checkoutName !== this.currUser.name){
@@ -464,6 +475,7 @@ new Vue({
         getImageUrl(imageName) {
             // Using the direct static file to serve images
             return `https://school-app-backend-zjnz.onrender.com/images/lessons/${imageName}`;
+            // return `http://localhost:3000/images/lessons/${imageName}`;
             
         },
         
