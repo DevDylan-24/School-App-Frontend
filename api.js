@@ -91,49 +91,10 @@ export async function del(endpoint) {
   });
 }
 
-
-//  Upload file with FormData (handles file uploads without JSON content-type)
-export async function upload(endpoint, formData) {
-  const url = `${API_BASE_URL}${endpoint}`;
-  const token = localStorage.getItem('token');
-  
-  const headers = {};
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-  
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: formData,
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Upload failed:', error);
-    throw error;
-  }
-}
-
-
-//  Check if user is authenticated (token exists and is valid)
-export function isAuthenticated() {
-  const token = localStorage.getItem('token');
-  return !!token;
-}
-
-
 //  Get current user's token
 export function getToken() {
   return localStorage.getItem('token');
 }
-
 
 // Remove token (logout)
 export function removeToken() {
@@ -152,8 +113,6 @@ export default {
   post,
   put,
   delete: del,
-  upload,
-  isAuthenticated,
   getToken,
   removeToken,
   setToken,

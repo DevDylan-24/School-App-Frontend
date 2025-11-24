@@ -1,4 +1,4 @@
-import {get, post, put, del, upload, isAuthenticated, getToken, setToken, removeToken} from './api.js';
+import {get, post, put, del, getToken, setToken, removeToken} from './api.js';
 
 new Vue({
    el: '#app',
@@ -267,7 +267,7 @@ new Vue({
             // Set new timeout for debouncing (300ms delay)
             this.searchTimeout = setTimeout(() => {
                 this.performSearch();
-            }, 300);
+            }, 350);
         },
         // Function ensures spaces booked for each lesson is consistent in both cart and search results
         checkSpacesInSearchResult(){
@@ -294,7 +294,7 @@ new Vue({
             this.error = '';
 
             try {
-                this.searchResults = await get(`/search?q=${this.searchQuery}`);
+                this.searchResults = await get(`/search?q=${encodeURIComponent(this.searchQuery)}`);
                 this.checkSpacesInSearchResult()
                 console.log(this.searchResults)
             } catch (err) {
