@@ -3,7 +3,7 @@ import {get, post, put, del, getToken, setToken, removeToken} from './api.js';
 new Vue({
    el: '#app',
     data: {
-        currentView: 'login', // Possible views: 'login', 'checkout', 'home', 'myCourses', 'cart'
+        currentView: 'login', // Possible views: 'login','home','cart'
         isSignUp: false,
         errorName: false,
         errorEmail: false,
